@@ -6,8 +6,8 @@ from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
 from data_base.postgreSQL_bd_universal import postgreSQL_all_universe
 from lexicon.lexicon_ru import LEXICON_RU
-from data_base.postreSQL_bd import postreSQL_users, postreSQL_login, postreSQL_user_add
-from keyboards.user_kb import create_inline_kb, universe_kb, create_inline_kb_universe_user
+from data_base.postreSQL_bd import postreSQL_users, postreSQL_login, postreSQL_user_add, postreSQL_universe_up
+from keyboards.user_kb import create_inline_kb, universe_kb, create_inline_kb_universe_user, menu_user
 from create_bot import bot
 
 
@@ -44,6 +44,12 @@ async def add_universe(message: Message):
     all_inuverse = list()
     for i in range(len(inuverse)):
         all_inuverse.append(inuverse[i][0])
-    await message.answer(text='<u>ВЫБЕРИТЕ ВСЕЛЕНУЮ</u>', reply_markup=create_inline_kb_universe_user(1, 'user_universe', all_inuverse))
+    await message.answer(text='<u>ВЫБЕРИТЕ ВСЕЛЕНУЮ</u>', reply_markup=create_inline_kb_universe_user(1, 'user_universe_', all_inuverse))
 
 
+
+@router.callback_query(Text(startswith='user_universe_'))
+async def menu_admin(callback: CallbackQuery):
+    await callback.message.answer(text=f'Вы выбрали вселенную {callback.data.split("_")[-1]}', reply_markup= menu_user)
+    postreSQL_universe_up(callback.data.split("_")[-1], callback.from_user.id)
+    await callback.answer()

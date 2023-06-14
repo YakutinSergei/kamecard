@@ -53,6 +53,10 @@ def create_inline_kb_universe_user(width: int,
     return kb_builder.as_markup()
 
 btn_universe: KeyboardButton = KeyboardButton(text=LEXICON_RU['universe'])
+btn_add_card: KeyboardButton = KeyboardButton(text=LEXICON_RU['add_card'])
+btn_my_cards: KeyboardButton = KeyboardButton(text=LEXICON_RU['my_cards'])
+menu_user: ReplyKeyboardMarkup = ReplyKeyboardMarkup(width=2, keyboard=[[btn_add_card], [btn_my_cards]],
+                                                    resize_keyboard=True)
 universe_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[btn_universe]],
                                                     resize_keyboard=True)
 

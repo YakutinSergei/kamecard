@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import psycopg2
 from environs import Env
 from lexicon.lexicon_ru import LEXICON_CARD_RARE
@@ -28,7 +30,8 @@ def postreSQL_connect():
                            "page VARCHAR(50),"           # страница
                            "chance_epic VARCHAR(10),"           # шанс эпический
                            "chance_mythical VARCHAR(10),"           # шанс мифической
-                           "chance_legendary VARCHAR(10));")           # шанс легендарный
+                           "chance_legendary VARCHAR(10),"      # шанс легендарный
+                           "data VARCHAR(50) NOT NULL);")
 
         with connect.cursor() as cursor:
             cursor.execute("CREATE TABLE IF NOT EXISTS cards ("
@@ -121,17 +124,18 @@ def postreSQL_user_add(user_id, login):
         connect.autocommit = True
 
         with connect.cursor() as cursor:
-            cursor.execute(f"INSERT INTO users (user_id, login, status, universe, sum_dust, attempts, page, chance_epic, chance_mythical, chance_legendary) "
+            cursor.execute(f"INSERT INTO users (user_id, login, status, universe, sum_dust, attempts, page, chance_epic, chance_mythical, chance_legendary, data) "
                            f"VALUES ('{user_id}',"
-                                    f"'{login}',"
-                                    f"'user',"
-                                    f"'None',"
-                                    f"'0',"
-                                    f"'0',"
-                                    f"'0',"
-                                    f"'60',"
-                                    f"'30',"
-                                    f"'10');")
+                            f"'{login}',"
+                            f"'user',"
+                            f"'None',"
+                            f"'0',"
+                            f"'2',"
+                            f"'0',"
+                            f"'60',"
+                            f"'30',"
+                            f"'10',"
+                           f"'{datetime.now()}');")
 
     except psycopg2.Error as _ex:
         print('[INFO] Error ', _ex)
@@ -330,3 +334,27 @@ def postreSQL_dust_up(user):
             connect.close()
             print('[INFO] PostgresSQL closed')
 
+#Обновление вселенной
+def postreSQL_universe_up(universe, user_id):
+    try:
+        connect = psycopg2.connect(
+            host=env('host'),
+            user=env('user'),
+            password=env('password'),
+            database=env('db_name')
+        )
+        connect.autocommit = True
+
+        with connect.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE users SET universe = '{universe}' "
+                f"WHERE user_id = '{user_id}';")
+
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if connect:
+            connect.close()
+            print('[INFO] PostgresSQL closed')

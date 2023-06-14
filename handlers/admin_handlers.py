@@ -187,6 +187,7 @@ async def cards_print_menu(callback: CallbackQuery):
                                                                     reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
+            await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
             await callback.answer()
         else:
             print('тут')
@@ -197,6 +198,7 @@ async def cards_print_menu(callback: CallbackQuery):
                                             reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
+            await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
             await callback.answer()
 
     await callback.answer()
