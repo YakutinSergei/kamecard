@@ -23,8 +23,8 @@ async def main():
     #Подключаемся к базе данных
     postreSQL_bd.postreSQL_connect()
     # Регистриуем роутеры в диспетчере
-    dp.include_router(admin_handlers.router)
     dp.include_router(user_handlers.router)
+    dp.include_router(admin_handlers.router)
     dp.include_router(other_handlers.router)
 
     # Пропускаем накопившиеся апдейты и запускаем polling

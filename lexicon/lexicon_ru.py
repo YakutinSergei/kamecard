@@ -14,7 +14,8 @@ LEXICON_RU: dict[str, str] = {
     'login_false':'Добро пожаловать, ',
     'login_user_true': 'Добро пожаловать, ',
     'login_user_false': 'Вы указали не верный логин',
-    'back': 'НАЗАД'}
+    'back': 'НАЗАД',
+    'universe': 'Выбрать вселенную'}
 
 LEXICON_ADMIN = {'backward': '◀️',
            'forward': '▶️'}
