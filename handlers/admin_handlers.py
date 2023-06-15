@@ -121,7 +121,6 @@ async def process_rare_card(message: Message, state: FSMContext):
         await state.update_data(img='gif__'+file_info.file_id)
         new_card = await state.get_data()
         await state.clear()
-        print(new_card)
         postreSQL_card_add(new_card)
         await message.answer(text='Карта успешно добавлена', reply_markup=create_inline_kb(1,'',
                                                                                            LEXICON_CARD['card'],
@@ -134,7 +133,6 @@ async def process_rare_card(message: Message, state: FSMContext):
         new_card = await state.get_data()
         await state.clear()
         postreSQL_card_add(new_card)
-        print(new_card)
         await message.answer(text='Карта успешно добавлена', reply_markup=create_inline_kb(1, '',
                                                                                            LEXICON_CARD['card'],
                                                                                            LEXICON_CARD['add_card'],
@@ -189,7 +187,6 @@ async def cards_print_menu(callback: CallbackQuery):
             await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
             await callback.answer()
         else:
-            print('тут')
             await bot.send_photo(chat_id=callback.from_user.id,
                                             photo=cards[pg][2].split('__')[1],
                                             caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
@@ -206,9 +203,7 @@ async def cards_print_menu(callback: CallbackQuery):
 async def process_forward_press(callback: CallbackQuery):
     cards = postreSQL_cards(callback.data.split('_')[-1])
     pg = postreSQL_pg_up(callback.from_user.id, 0)
-    print(pg)
     len_pg = len(cards)
-    print(len_pg)
     if pg + 1 < len_pg:
         pg = postreSQL_pg_up(callback.from_user.id, 1)
         if cards[pg][2].split('__')[0] == 'gif':
@@ -235,7 +230,6 @@ async def process_forward_press(callback: CallbackQuery):
 @router.callback_query(Text(startswith='admin_backward_'))
 async def process_forward_press(callback: CallbackQuery):
     name_cards = callback.data.split('_')[-1]
-    print(name_cards)
     cards = postreSQL_cards(name_cards)
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
     len_pg = len(cards)

@@ -11,7 +11,7 @@ from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD_RARE
 from data_base.postreSQL_bd import postreSQL_users, postreSQL_login, postreSQL_user_add, postreSQL_universe_up, \
     postreSQL_cards, postgreSQL_add_card_user, postgreSQL_cards_one, postgereSQL_dust_up, postreSQL_attempts_user_up, \
     postreSQL_data_user_up, postreSQL_cards_all_category, postreSQL_cards_all_user_category, postreSQL_pg_up, \
-    postreSQL_cards_all_user
+    postreSQL_cards_all_user, postreSQL_point_all_user
 from keyboards.user_kb import create_inline_kb, universe_kb, create_inline_kb_universe_user, menu_user, \
     create_pagination_keyboard
 import random
@@ -94,12 +94,11 @@ async def add_add_card_user(message: Message):
 #Функция добавления карты
 async def add_card_user(name_card, message):
     cards = postreSQL_cards(name_card)
-    ran_card = random.randint(0, len(cards))
+    ran_card = random.randint(0, len(cards)-1)
     card_add = postgreSQL_add_card_user(message.from_user.id, cards[ran_card][1], cards[ran_card][3])
-    print(card_add)
     if card_add:
         card_print = postgreSQL_cards_one(card_add[3])
-        if card_add[2].split('__')[0] == 'gif':
+        if card_print[2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=message.from_user.id, animation=card_print[2].split('__')[1],
                                      caption=f'{card_print[1]}\nАтака: {cards[0][4]}\n Защита: {card_print[5]}\n '
                                              f'Ценность: {card_print[-1]}')
@@ -152,8 +151,6 @@ async def cards_print_menu(callback: CallbackQuery):
         availability = 'ПОЛУЧЕНО'
     else:
         availability = 'НЕ ПОЛУЧЕНО'
-    print(category)
-    print(cards)
     if len(cards) > 0:
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2].split('__')[1],
@@ -165,8 +162,6 @@ async def cards_print_menu(callback: CallbackQuery):
             await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
             await callback.answer()
         else:
-            print('nen')
-            print(cards[pg][2].split('__')[1])
             await bot.send_photo(chat_id=callback.from_user.id,
                                             photo=cards[pg][2].split('__')[1],
                                             caption=f'{availability}\n{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
@@ -263,15 +258,12 @@ async def back_category_command(callback: CallbackQuery):
 async def add_my_cards_user(message: Message):
     all_cards = sum(postreSQL_cards_all_category())
     cards_user = sum(postreSQL_cards_all_user_category(message.from_user.id))
-    point = 0
-    # for card in postreSQL_cards_all_user(message.from_user.id):
 
     user = postreSQL_users(message.from_user.id)
-    print(user)
-    print(all_cards)
-    print(cards_user)
+    all_points = sorted(postreSQL_point_all_user(), reverse=True)
+    top = all_points.index(int(user[-1])) + 1
     await message.answer(text=f"Вселенная: {user[3]}\n"
                               f"Всего карт: {cards_user}/{all_cards}\n"
-                              f"Очки: {point}\n"
+                              f"Очки: {user[-1]}\n"
                               f"Топ вселенной: {top} место\n"
                               f"Логин: {user[2]}")

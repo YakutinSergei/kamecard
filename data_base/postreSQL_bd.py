@@ -394,7 +394,6 @@ def postgreSQL_add_card_user(user_id, name_card, rare):
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT * FROM user_cards WHERE user_id = '{user_id}' AND name_card = '{name_card}'")
             cards = cursor.fetchone()
-            print(cards)
 
         if not cards:
             with connect.cursor() as cursor:
@@ -467,7 +466,6 @@ def postgereSQL_dust_up(user_id, size, name_categ):
             with connect.cursor() as cursor:
                 cursor.execute(f"SELECT chance_epic, chance_mythical, chance_legendary FROM users WHERE user_id = '{user_id}'")
                 size_chance = cursor.fetchone()
-                print(size_chance)
 
 
         with connect.cursor() as cursor:
@@ -615,7 +613,7 @@ def postreSQL_cards_all_category():
             print('[INFO] PostgresSQL closed')
             return all_cards_usual, all_cards_rare, all_cards_epic, all_cards_mythical, all_cards_legendary
 
-#Получение карт узера
+#Получение карт юзера
 def postreSQL_cards_all_user_category(user_id):
     try:
         connect = psycopg2.connect(
@@ -672,7 +670,6 @@ def postreSQL_cards_all_user(user_id):
             cards = cursor.fetchall()
             for i in range(len(cards)):
                 all_cards.append(cards[i][0])
-            print(all_cards)
 
 
     except psycopg2.Error as _ex:
@@ -683,3 +680,29 @@ def postreSQL_cards_all_user(user_id):
             connect.close()
             print('[INFO] PostgresSQL closed')
             return all_cards
+
+#Получение очков юзеров
+def postreSQL_point_all_user():
+    try:
+        connect = psycopg2.connect(
+            host=env('host'),
+            user=env('user'),
+            password=env('password'),
+            database=env('db_name')
+        )
+        all_points = []
+        with connect.cursor() as cursor:
+            cursor.execute(f"SELECT points FROM users;")
+            points = cursor.fetchall()
+            for i in range(len(points)):
+                all_points.append(int(points[i][0]))
+
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if connect:
+            connect.close()
+            print('[INFO] PostgresSQL closed')
+            return all_points
