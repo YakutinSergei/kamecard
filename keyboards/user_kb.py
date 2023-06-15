@@ -2,7 +2,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from lexicon.lexicon_ru import LEXICON_RU
+from lexicon.lexicon_ru import LEXICON_RU, LEXICON_ADMIN
+
 
 def create_inline_kb(width: int,
                      pref: str,
@@ -51,6 +52,16 @@ def create_inline_kb_universe_user(width: int,
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
+def create_pagination_keyboard(name_card: str, *buttons: str) -> InlineKeyboardMarkup:
+    # Инициализируем билдер
+    kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
+    # Добавляем в билдер ряд с кнопками
+    kb_builder.row(*[InlineKeyboardButton(
+        text=LEXICON_ADMIN[button] if button in LEXICON_ADMIN else button,
+        callback_data=f'user_{button}_{name_card}') for button in buttons]).row(InlineKeyboardButton(text='НАЗАД', callback_data='назад_user'))
+    # Возвращаем объект инлайн-клавиатуры
+    return kb_builder.as_markup()
+
 
 btn_universe: KeyboardButton = KeyboardButton(text=LEXICON_RU['universe'])
 btn_add_card: KeyboardButton = KeyboardButton(text=LEXICON_RU['add_card'])

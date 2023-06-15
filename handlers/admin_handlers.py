@@ -7,8 +7,8 @@ from aiogram.filters import Command, Text
 from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD, LEXICON_CARD_RARE
 from aiogram.fsm.storage.memory import MemoryStorage
 from create_bot import bot
-from data_base.postreSQL_bd import postreSQL_admin, postreSQL_card_add, postreSQL_cards, postreSQL_login, postreSQL_pg_up, \
-    postreSQL_del_cards, postreSQL_dust_up
+from data_base.postreSQL_bd import postreSQL_admin, postreSQL_card_add, postreSQL_cards, postreSQL_login, \
+    postreSQL_pg_up, postreSQL_del_cards, postreSQL_attempts_up
 from data_base.postgreSQL_bd_universal import postreSQL_universe_add, postgreSQL_all_universe
 from keyboards.admin_kb import create_inline_kb, admin_create_pagination_keyboard, create_inline_kb_universe
 
@@ -177,7 +177,6 @@ async def cards_print_menu(callback: CallbackQuery):
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
     cards = postreSQL_cards(callback.data.split('_')[-1])
-    print(cards)
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
     if len(cards) > 0:
         if cards[pg][2].split('__')[0] == 'gif':
@@ -372,8 +371,7 @@ async def process_add_dust_sql(message: Message, state: FSMContext):
     await state.update_data(attempts=message.text)
     add_dust=await state.get_data()
     await state.clear()
-    print(add_dust)
-    postreSQL_dust_up(add_dust)
+    postreSQL_attempts_up(add_dust)
     await message.answer(text='Попытки успешно добавлены')
     await bot.send_message(message.from_user.id, text='МЕНЮ АДМИНИСТРАТОРА', reply_markup=create_inline_kb(1, '',
                                                                                                            LEXICON_CARD['card'],
