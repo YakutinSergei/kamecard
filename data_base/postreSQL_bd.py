@@ -230,8 +230,6 @@ def postreSQL_cards(category, universe):
             cards = cursor.fetchall()
             return cards
 
-
-
     except psycopg2.Error as _ex:
         print('[INFO] Error ', _ex)
 
@@ -240,6 +238,29 @@ def postreSQL_cards(category, universe):
             connect.close()
             print('[INFO] PostgresSQL closed')
 
+
+#Показ карточек админа
+def postreSQL_cards_admin(category):
+    try:
+        connect = psycopg2.connect(
+            host=env('host'),
+            user=env('user'),
+            password=env('password'),
+            database=env('db_name')
+        )
+
+        with connect.cursor() as cursor:
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{category}';")
+            cards = cursor.fetchall()
+            return cards
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if connect:
+            connect.close()
+            print('[INFO] PostgresSQL closed')
 # функция обновления страницы
 def postreSQL_pg_up(user_id, pg):
     try:

@@ -115,15 +115,21 @@ async def add_card_user(name_card, message, universe):
     card_add = postgreSQL_add_card_user(message.from_user.id, cards[ran_card][1], cards[ran_card][3], universe)
     if card_add:
         card_print = postgreSQL_cards_one(card_add[3])
+        str_cards = card_print[3]
         if card_print[2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=message.from_user.id, animation=card_print[2].split('__')[1],
-                                     caption=f'{card_print[1]}\n{LEXICON_CARD["attack"]} {cards[0][4]}\n '
-                                             f'{LEXICON_CARD["health"]} {card_print[5]}\n '
-                                             f'{LEXICON_CARD["value"]} {card_print[-2]}')
+                                     caption=f'{card_print[1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {card_print[5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
         else:
             await bot.send_photo(chat_id=message.from_user.id, photo=card_print[2].split('__')[1],
-                                 caption=f'{card_print[1]}\n{LEXICON_CARD["attack"]} {cards[0][4]}\n '
-                                         f'{LEXICON_CARD["health"]} {card_print[5]}\n ' f'{LEXICON_CARD["value"]} {card_print[-2]}')
+                                 caption=f'{card_print[1]}\n'
+                                         f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                         f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                         f'{LEXICON_CARD["health"]} {card_print[5]}\n\n'
+                                         f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
     else:
         if name_card == LEXICON_CARD_RARE['legendary']:
             postgereSQL_dust_up(message.from_user.id, 150, LEXICON_CARD_RARE['legendary'])
@@ -173,11 +179,15 @@ async def cards_print_menu(callback: CallbackQuery):
     else:
         availability = 'НЕ ПОЛУЧЕНО❗️'
     if len(cards) > 0:
+        str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2].split('__')[1],
-                                                                    caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]}',
+                                                                    caption=f'{availability}\n'
+                                                                            f'{cards[pg][1]}\n'
+                                                                            f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
+                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                            f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
                                                                     reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -186,8 +196,12 @@ async def cards_print_menu(callback: CallbackQuery):
         else:
             await bot.send_photo(chat_id=callback.from_user.id,
                                             photo=cards[pg][2].split('__')[1],
-                                            caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]} {cards[pg][4]}\n {LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]}',
+                                            caption=f'{availability}\n'
+                                                    f'{cards[pg][1]}\n'
+                                                     f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                    f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
+                                                    f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                    f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
                                             reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -209,21 +223,28 @@ async def process_forward_press(callback: CallbackQuery):
         availability = 'НЕ ПОЛУЧЕНО❗️'
     if pg + 1 < len_pg:
         pg = postreSQL_pg_up(callback.from_user.id, 1)
+        str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]}: {cards[pg][4]}\n '
-                                                                       f'{LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]}'),
+                                                               caption=f'{availability}\n'
+                                                                       f'{cards[pg][1]}\n'
+                                                                        f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                        f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                        f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                                       f'{LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]}'),
+                                                               caption=f'{availability}\n'
+                                                                       f'{cards[pg][1]}\n'
+                                                                        f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                        f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                        f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -242,32 +263,39 @@ async def process_forward_press(callback: CallbackQuery):
         availability = 'НЕ ПОЛУЧЕНО❗️'
     if pg > 0:
         pg = postreSQL_pg_up(callback.from_user.id, -1)
+        str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                         caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                 f'{LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                             f'{LEXICON_CARD["value"]} {cards[pg][-2]}'),
+                                         caption=f'{availability}\n'
+                                                 f'{cards[pg][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                         reply_markup=create_pagination_keyboard(cards[pg][3],'backward',
                                                                                    f'{pg + 1}/{len(cards)}',
                                                                                    'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                        caption=f'{availability}\n{cards[pg][1]}\n{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n '
-                                         f'{LEXICON_CARD["value"]} {cards[pg][-2]}'),
+                                        caption=f'{availability}\n'
+                                                f'{cards[pg][1]}\n'
+                                                f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                         reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                f'{pg + 1}/{len(cards)}',
                                                                                'forward'))
     await callback.answer()
 
-#ВОзвращение к выбору категории карточек
+#Возвращение к выбору категории карточек
 @router.callback_query(Text(text='назад_user'))
 async def back_category_command(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
     all_cards = postreSQL_cards_all_category(user[3])
-    cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user[3])
+    cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user[ 3])
     await callback.message.answer(text='Ваши карты', reply_markup=create_inline_kb(1, 'cards_user_',
                                                                                             f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}/{all_cards[0]}",
                                                                                             f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}/{all_cards[1]}",

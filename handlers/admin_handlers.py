@@ -7,7 +7,8 @@ from aiogram.filters import Command, Text
 from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD, LEXICON_CARD_RARE
 from create_bot import bot
 from data_base.postreSQL_bd import postreSQL_admin, postreSQL_card_add, postreSQL_cards, postreSQL_login, \
-    postreSQL_pg_up, postreSQL_del_cards, postreSQL_attempts_up, postreSQL_users, postreSQL_del_universe
+    postreSQL_pg_up, postreSQL_del_cards, postreSQL_attempts_up, postreSQL_users, postreSQL_del_universe, \
+    postreSQL_cards_admin
 from data_base.postgreSQL_bd_universal import postreSQL_universe_add, postgreSQL_all_universe
 from keyboards.admin_kb import create_inline_kb, admin_create_pagination_keyboard, create_inline_kb_universe
 
@@ -187,13 +188,18 @@ async def cards_print_menu(callback: CallbackQuery):
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
+    cards = postreSQL_cards_admin(callback.data.split('_')[-1])
+    print(cards)
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
+    str_cards = cards[pg][3]
     if len(cards) > 0:
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2].split('__')[1],
-                                                                    caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-2]}',
+                                                                    caption=f'{cards[pg][1]}\n'
+                                                                             f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                            f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
                                                                     reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -202,8 +208,11 @@ async def cards_print_menu(callback: CallbackQuery):
         else:
             await bot.send_photo(chat_id=callback.from_user.id,
                                             photo=cards[pg][2].split('__')[1],
-                                            caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-2]}',
+                                            caption=f'{cards[pg][1]}\n'
+                                                    f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                    f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                    f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                    f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
                                             reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -215,24 +224,31 @@ async def cards_print_menu(callback: CallbackQuery):
 @router.callback_query(Text(startswith='admin_forward_'))
 async def process_forward_press(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
+    cards = postreSQL_cards_admin(callback.data.split('_')[-1])
     pg = postreSQL_pg_up(callback.from_user.id, 0)
     len_pg = len(cards)
     if pg + 1 < len_pg:
         pg = postreSQL_pg_up(callback.from_user.id, 1)
+        str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-2]}'),
+                                                                   caption=f'{cards[pg][1]}\n'
+                                                                           f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                           f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                           f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                           f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-2]}'),
+                                                               caption=f'{cards[pg][1]}\n'
+                                                                       f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                       f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                       f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -240,26 +256,30 @@ async def process_forward_press(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='admin_backward_'))
 async def process_forward_press(callback: CallbackQuery):
-    name_cards = callback.data.split('_')[-1]
-    user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(name_cards, user[3])
+    cards = postreSQL_cards_admin(callback.data.split('_')[-1])
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
-    len_pg = len(cards)
     if pg > 0:
         pg = postreSQL_pg_up(callback.from_user.id, -1)
+        str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                         caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                             f'Ценность: {cards[pg][-2]}'),
+                                                                   caption=f'{cards[pg][1]}\n'
+                                                                           f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                           f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                           f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                           f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                         reply_markup=admin_create_pagination_keyboard(cards[pg][3],'backward',
                                                                                    f'{pg + 1}/{len(cards)}',
                                                                                    'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                        caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                         f'Ценность: {cards[pg][-2]}'),
+                                                               caption=f'{cards[pg][1]}\n'
+                                                                       f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                       f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                       f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                         reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                f'{pg + 1}/{len(cards)}',
                                                                                'forward'))
@@ -298,19 +318,27 @@ async def del_product_command(callback: CallbackQuery):
     else:
 
         pg = postreSQL_pg_up(callback.from_user.id, -1)
+        str_cards = cards[pg][3]
+
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                                                   caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                           f'Ценность: {cards[pg][-2]}'),
+                                                                   caption=f'{cards[pg][1]}\n'
+                                                                           f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                           f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                           f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                           f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-2]}'),
+                                                               caption=f'{cards[pg][1]}\n'
+                                                                       f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                       f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                       f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                       f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
