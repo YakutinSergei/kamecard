@@ -13,14 +13,12 @@ logger = logging.getLogger(__name__)
 async def set_main_menu():
     # Создаем список с командами и их описанием для кнопки menu
     main_menu_commands = [
-        BotCommand(command='/help',
-                   description='Справка по работе бота'),
-        BotCommand(command='/support',
-                   description='Поддержка'),
-        BotCommand(command='/contacts',
-                   description='Другие способы связи'),
-        BotCommand(command='/payments',
-                   description='Платежи')]
+        BotCommand(command='/start',
+                   description='Старт'),
+        BotCommand(command='/profile',
+                   description='Профиль'),
+        BotCommand(command='/shop',
+                   description='Магазин')]
 
     await bot.set_my_commands(main_menu_commands)
 # Функция конфигурирования и запуска бота

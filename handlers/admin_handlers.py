@@ -2,13 +2,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters.state import State, StatesGroup, StateFilter
 from aiogram.fsm.state import default_state
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto,  InputMediaAnimation
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.filters import Command, Text
 from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD, LEXICON_CARD_RARE
-from aiogram.fsm.storage.memory import MemoryStorage
 from create_bot import bot
 from data_base.postreSQL_bd import postreSQL_admin, postreSQL_card_add, postreSQL_cards, postreSQL_login, \
-    postreSQL_pg_up, postreSQL_del_cards, postreSQL_attempts_up
+    postreSQL_pg_up, postreSQL_del_cards, postreSQL_attempts_up, postreSQL_users, postreSQL_del_universe
 from data_base.postgreSQL_bd_universal import postreSQL_universe_add, postgreSQL_all_universe
 from keyboards.admin_kb import create_inline_kb, admin_create_pagination_keyboard, create_inline_kb_universe
 
@@ -20,6 +19,7 @@ class FSMAdmin_card(StatesGroup):
     attack = State()
     protection = State()
     rare = State()
+    universe = State()
     img = State()
 
 class FSMAdmin_universal(StatesGroup):
@@ -89,7 +89,7 @@ async def process_name_card(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMAdmin_card.attack))
 async def process_attack_card(message: Message, state: FSMContext):
     await state.update_data(attack=message.text)
-    await message.answer(text="Введи значение защиты карточки:")
+    await message.answer(text="Введи значение здоровья карточки:")
     await state.set_state(FSMAdmin_card.protection)
 
 # Функция добавления защиты карточки
@@ -108,10 +108,22 @@ async def process_protection_card(message: Message, state: FSMContext):
 
 # Функция добавления редкости
 @router.callback_query(StateFilter(FSMAdmin_card.rare))
+async def process_rare_card(callback: CallbackQuery, state: FSMContext, LEXICON_UNIVERSE=None):
+    inuverse = postgreSQL_all_universe()
+    all_inuverse = list()
+    for i in range(len(inuverse)):
+        all_inuverse.append(inuverse[i][0])
+    await state.update_data(rare=callback.data)
+    await bot.edit_message_text(text='🪐Выбирите вселенную', chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                reply_markup=create_inline_kb(1, '', *all_inuverse))
+    await state.set_state(FSMAdmin_card.universe)
+
+@router.callback_query(StateFilter(FSMAdmin_card.universe))
 async def process_rare_card(calllback: CallbackQuery, state: FSMContext):
-    await state.update_data(rare=calllback.data)
+    await state.update_data(universe=calllback.data)
     await calllback.message.answer(text="Загрузите фото карточки")
     await state.set_state(FSMAdmin_card.img)
+    await calllback.answer()
 
 # Функция добавления фото
 @router.message(StateFilter(FSMAdmin_card.img))
@@ -174,13 +186,14 @@ async def cards_print_menu(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
-    cards = postreSQL_cards(callback.data.split('_')[-1])
+    user = postreSQL_users(callback.from_user.id)
+    cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
     if len(cards) > 0:
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2].split('__')[1],
-                                                                    caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-1]}',
+                                                                    caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                       f'Ценность: {cards[pg][-2]}',
                                                                     reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -189,8 +202,8 @@ async def cards_print_menu(callback: CallbackQuery):
         else:
             await bot.send_photo(chat_id=callback.from_user.id,
                                             photo=cards[pg][2].split('__')[1],
-                                            caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-1]}',
+                                            caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                       f'Ценность: {cards[pg][-2]}',
                                             reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -201,7 +214,8 @@ async def cards_print_menu(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='admin_forward_'))
 async def process_forward_press(callback: CallbackQuery):
-    cards = postreSQL_cards(callback.data.split('_')[-1])
+    user = postreSQL_users(callback.from_user.id)
+    cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
     pg = postreSQL_pg_up(callback.from_user.id, 0)
     len_pg = len(cards)
     if pg + 1 < len_pg:
@@ -209,28 +223,26 @@ async def process_forward_press(callback: CallbackQuery):
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-1]}'),
+                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                       f'Ценность: {cards[pg][-2]}'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-1]}'),
+                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                       f'Ценность: {cards[pg][-2]}'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
-        #await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
-
-
     await callback.answer()
 
 @router.callback_query(Text(startswith='admin_backward_'))
 async def process_forward_press(callback: CallbackQuery):
     name_cards = callback.data.split('_')[-1]
-    cards = postreSQL_cards(name_cards)
+    user = postreSQL_users(callback.from_user.id)
+    cards = postreSQL_cards(name_cards, user[3])
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
     len_pg = len(cards)
     if pg > 0:
@@ -238,22 +250,22 @@ async def process_forward_press(callback: CallbackQuery):
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                         caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                             f'Ценность: {cards[pg][-1]}'),
+                                         caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                             f'Ценность: {cards[pg][-2]}'),
                                         reply_markup=admin_create_pagination_keyboard(cards[pg][3],'backward',
                                                                                    f'{pg + 1}/{len(cards)}',
                                                                                    'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                        caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                         f'Ценность: {cards[pg][-1]}'),
+                                        caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                         f'Ценность: {cards[pg][-2]}'),
                                         reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                f'{pg + 1}/{len(cards)}',
                                                                                'forward'))
     await callback.answer()
 
-#ВОзвращение к выбору категории карточек
+#Возвращение к выбору категории карточек
 @router.callback_query(Text(text='назад_admin'))
 async def back_category_command(callback: CallbackQuery):
     await callback.message.answer(text='МЕНЮ АДМИНИСТРАТОРА', reply_markup=create_inline_kb(1, 'cards_',
@@ -268,7 +280,8 @@ async def back_category_command(callback: CallbackQuery):
 @router.callback_query(Text(startswith='удалить_admin_'))
 async def del_product_command(callback: CallbackQuery):
     name_cards = callback.data.split('_')[-1]
-    cards = postreSQL_cards(name_cards)
+    user = postreSQL_users(callback.from_user.id)
+    cards = postreSQL_cards(name_cards, user[3])
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
     postreSQL_del_cards(cards[pg][1])
     cards.pop(pg)
@@ -288,16 +301,16 @@ async def del_product_command(callback: CallbackQuery):
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
-                                                                   caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                           f'Ценность: {cards[pg][-1]}'),
+                                                                   caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                           f'Ценность: {cards[pg][-2]}'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                          media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
-                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Защита: {cards[pg][5]}\n '
-                                                                       f'Ценность: {cards[pg][-1]}'),
+                                                               caption=f'{cards[pg][1]}\nАтака: {cards[pg][4]}\n Здоровье: {cards[pg][5]}\n '
+                                                                       f'Ценность: {cards[pg][-2]}'),
                                          reply_markup=admin_create_pagination_keyboard(cards[pg][3], 'backward',
                                                                                        f'{pg + 1}/{len(cards)}',
                                                                                        'forward'))
@@ -336,9 +349,48 @@ async def process_add_universe_command(callback: CallbackQuery):
         all_inuverse.append(inuverse[i][0])
     all_inuverse.append('НАЗАД')
     await bot.edit_message_text(text='ВСЕЛЕННЫЕ', chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                reply_markup=create_inline_kb_universe(1, 'universe', all_inuverse))
+                                reply_markup=create_inline_kb_universe(1, 'universe_del', all_inuverse))
     await callback.answer()
 
+
+@router.callback_query(Text(text='universe_del_НАЗАД'))
+async def del_product_command(callback: CallbackQuery):
+    await bot.edit_message_text(text=f'МЕНЮ АДМИНИСТРАТОРА',
+                                chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                reply_markup=create_inline_kb(1, '',
+                                                              LEXICON_CARD['card'],
+                                                              LEXICON_CARD['add_card'],
+                                                              LEXICON_CARD['universe'],
+                                                              LEXICON_CARD['add_inuverse'],
+                                                              LEXICON_CARD['add_attempt']))
+@router.callback_query(Text(startswith='universe_del_'))
+async def del_product_command(callback: CallbackQuery):
+    print(callback.data)
+    universe = callback.data.split("_")[-1]
+    await bot.edit_message_text(text=f'Вы хотите удалить вселенную <i>{universe} </i>?', chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                reply_markup=create_inline_kb(1, f'del_universe_{universe}_', 'ОК', 'Отмена'))
+
+@router.callback_query(Text(startswith='del_universe_'))
+async def del_product_command(callback: CallbackQuery):
+    print(callback.data)
+    if callback.data.split('_')[-1] == 'ОК':
+        postreSQL_del_universe(callback.data.split('_')[2])
+        await bot.edit_message_text(text=f'Вселенная <i>{callback.data.split("_")[2]} </i> удалена', chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                    reply_markup=create_inline_kb(1, '',
+                                                                  LEXICON_CARD['card'],
+                                                                  LEXICON_CARD['add_card'],
+                                                                  LEXICON_CARD['universe'],
+                                                                  LEXICON_CARD['add_inuverse'],
+                                                                  LEXICON_CARD['add_attempt']))
+    else:
+        await bot.edit_message_text(text=f'МЕНЮ АДМИНИСТРАТОРА',
+                                    chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                    reply_markup=create_inline_kb(1, '',
+                                                                  LEXICON_CARD['card'],
+                                                                  LEXICON_CARD['add_card'],
+                                                                  LEXICON_CARD['universe'],
+                                                                  LEXICON_CARD['add_inuverse'],
+                                                                  LEXICON_CARD['add_attempt']))
 
 #Ввод логина для добавления пыли
 @router.callback_query(Text(text=LEXICON_CARD['add_attempt']))

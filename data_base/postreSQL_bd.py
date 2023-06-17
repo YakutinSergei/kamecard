@@ -39,17 +39,19 @@ def postreSQL_connect():
                            "id BIGSERIAL NOT NULL PRIMARY KEY,"
                            "name VARCHAR(50) NOT NULL,"
                            "img VARCHAR(100) NOT NULL,"    
-                           "rare VARCHAR(50) NOT NULL,"                 # Редкость
-                           "attack VARCHAR(50) NOT NULL,"         # атака 
-                           "protection VARCHAR(50) NOT NULL,"         # защита 
-                           "value VARCHAR(50) NOT NULL);")              # Ценность
+                           "rare VARCHAR(50) NOT NULL,"             # Редкость
+                           "attack VARCHAR(50) NOT NULL,"           # атака 
+                           "protection VARCHAR(50) NOT NULL,"       # защита 
+                           "value VARCHAR(50) NOT NULL,"            # Ценность
+                           "universe VARCHAR(50) NOT NULL);")       # Вселенная
 
         with connect.cursor() as cursor:
             cursor.execute("CREATE TABLE IF NOT EXISTS user_cards ("
                            "id BIGSERIAL NOT NULL PRIMARY KEY,"
                            "user_id VARCHAR(50) NOT NULL,"
                            "rare VARCHAR(50) NOT NULL,"
-                           "name_card VARCHAR(100) NOT NULL);")
+                           "name_card VARCHAR(100) NOT NULL,"
+                           "universe VARCHAR(100) NOT NULL);")
 
         with connect.cursor() as cursor:
              cursor.execute("CREATE TABLE IF NOT EXISTS name_universes ("
@@ -172,12 +174,13 @@ def postreSQL_card_add(card):
             value_card = 30000
 
         with connect.cursor() as cursor:
-            cursor.execute(f"INSERT INTO cards (name, img, rare, attack, protection, value) VALUES ('{card['neme']}',"
+            cursor.execute(f"INSERT INTO cards (name, img, rare, attack, protection, value, universe) VALUES ('{card['neme']}',"
                                                                                                     f"'{card['img']}',"
                                                                                                     f"'{card['rare']}',"
                                                                                                     f"'{card['attack']}',"
                                                                                                     f"'{card['protection']}',"
-                                                                                                    f"'{value_card}');")
+                                                                                                    f"'{value_card}',"
+                                                                                                    f"'{card['universe']}');")
 
 
 
@@ -213,7 +216,7 @@ def postreSQL_admin(user_id):
             connect.close()
             print('[INFO] PostgresSQL closed')
 
-def postreSQL_cards(category):
+def postreSQL_cards(category, universe):
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -223,7 +226,7 @@ def postreSQL_cards(category):
         )
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{category}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{category}' AND universe = '{universe}';")
             cards = cursor.fetchall()
             return cards
 
@@ -366,7 +369,7 @@ def postreSQL_universe_up(universe, user_id):
 
 
 #Добавление карт
-def postgreSQL_add_card_user(user_id, name_card, rare):
+def postgreSQL_add_card_user(user_id, name_card, rare, universe):
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -397,9 +400,10 @@ def postgreSQL_add_card_user(user_id, name_card, rare):
 
         if not cards:
             with connect.cursor() as cursor:
-                cursor.execute(f"INSERT INTO user_cards (user_id, rare, name_card) VALUES ('{user_id}',"
+                cursor.execute(f"INSERT INTO user_cards (user_id, rare, name_card, universe) VALUES ('{user_id}',"
                                f"'{rare}',"
-                               f"'{name_card}');")
+                               f"'{name_card}',"
+                               f"'{universe}');")
 
             with connect.cursor() as cursor:
                 cursor.execute(f"SELECT * FROM user_cards WHERE user_id = '{user_id}' AND name_card = '{name_card}'")
@@ -572,7 +576,7 @@ def postreSQL_data_user_up(user_id):
 
 
 #получение всех карт
-def postreSQL_cards_all_category():
+def postreSQL_cards_all_category(universe):
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -582,23 +586,23 @@ def postreSQL_cards_all_category():
         )
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['legendary']}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['legendary']}' AND universe = '{universe}';")
             all_cards_legendary = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['mythical']}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['mythical']}' AND universe = '{universe}';")
             all_cards_mythical = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['epic']}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['epic']}' AND universe = '{universe}';")
             all_cards_epic = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['rare']}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['rare']}' AND universe = '{universe}';")
             all_cards_rare = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['usual']}';")
+            cursor.execute(f"SELECT *FROM cards WHERE  rare = '{LEXICON_CARD_RARE['usual']}' AND universe = '{universe}';")
             all_cards_usual = len(cursor.fetchall())
 
 
@@ -614,7 +618,7 @@ def postreSQL_cards_all_category():
             return all_cards_usual, all_cards_rare, all_cards_epic, all_cards_mythical, all_cards_legendary
 
 #Получение карт юзера
-def postreSQL_cards_all_user_category(user_id):
+def postreSQL_cards_all_user_category(user_id, universe):
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -624,23 +628,24 @@ def postreSQL_cards_all_user_category(user_id):
         )
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['legendary']}' AND user_id = '{user_id}';")
+            print(universe)
+            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['legendary']}' AND user_id = '{user_id}' AND universe = '{universe}';")
             all_cards_legendary = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['mythical']}' AND user_id = '{user_id}';")
+            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['mythical']}' AND user_id = '{user_id}' AND universe = '{universe}';")
             all_cards_mythical = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['epic']}' AND user_id = '{user_id}';")
+            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['epic']}' AND user_id = '{user_id}' AND universe = '{universe}';")
             all_cards_epic = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['rare']}' AND user_id = '{user_id}';")
+            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['rare']}' AND user_id = '{user_id}' AND universe = '{universe}';")
             all_cards_rare = len(cursor.fetchall())
 
         with connect.cursor() as cursor:
-            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['usual']}' AND user_id = '{user_id}';")
+            cursor.execute(f"SELECT *FROM user_cards WHERE  rare = '{LEXICON_CARD_RARE['usual']}' AND user_id = '{user_id}' AND universe = '{universe}';")
             all_cards_usual = len(cursor.fetchall())
 
 
@@ -706,3 +711,62 @@ def postreSQL_point_all_user():
             connect.close()
             print('[INFO] PostgresSQL closed')
             return all_points
+
+
+
+
+def postgereSQL_dust_shop(user_id, size):
+    try:
+        connect = psycopg2.connect(
+            host=env('host'),
+            user=env('user'),
+            password=env('password'),
+            database=env('db_name')
+        )
+        connect.autocommit = True
+
+        with connect.cursor() as cursor:
+            cursor.execute(f"SELECT sum_dust FROM users WHERE user_id = '{user_id}'")
+            dust =int(cursor.fetchone()[0])
+
+
+        with connect.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE users SET sum_dust = '{dust + size}' "
+                f"WHERE user_id = '{user_id}';")
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if connect:
+            connect.close()
+            print('[INFO] PostgresSQL closed')
+
+
+def postreSQL_del_universe(universe):
+    try:
+        connect = psycopg2.connect(
+            host=env('host'),
+            user=env('user'),
+            password=env('password'),
+            database=env('db_name')
+        )
+        connect.autocommit = True
+        print(universe)
+        with connect.cursor() as cursor:
+            cursor.execute(f"DELETE FROM cards WHERE universe = '{universe}'")
+
+        with connect.cursor() as cursor:
+            cursor.execute(f"DELETE FROM user_cards WHERE universe = '{universe}'")
+
+        with connect.cursor() as cursor:
+            cursor.execute(f"DELETE FROM name_universes WHERE name = '{universe}'")
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if connect:
+            connect.close()
+            print('[INFO] PostgresSQL closed')

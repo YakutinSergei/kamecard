@@ -28,13 +28,31 @@ LEXICON_CARD: dict[str:str] = {
     'add_card': 'Добавить карточку',
     'universe':'Вселенные',
     'add_inuverse': 'Добавить вселенную',
-    'add_attempt': 'Выдача попыток'
+    'add_attempt': 'Выдача попыток',
+    'attack': 'Атака: ',
+    'health': 'Здоровье: ',
+    'value': 'Ценность: ',
 }
 
 LEXICON_CARD_RARE: dict[str:str] = {
-    'usual':'Обычная',
-    'rare': 'Редкая',
-    'epic':'Эпическая',
-    'mythical': 'Мифическая',
-    'legendary': 'Легендарная'
+    'usual':'🃏Обычная',
+    'rare': '🍃Редкая',
+    'epic':'👾Эпическая',
+    'mythical': '🎴Мифическая',
+    'legendary': '💮Легендарная'
+}
+
+LIXICON_UNIVERSE: dict[str:str] = {
+    'choice':'🪐Выбирите вселенную',
+    'rare': '🍃Редкая',
+    'epic':'👾Эпическая',
+    'mythical': '🎴Мифическая',
+    'legendary': '💮Легендарная'
+}
+
+LEXICON_SHOP: dict[str:str] = {
+    'shop':'МАГАЗИН🏬',
+    '1_attempt': '1 попытка - 75 пыли🌸',
+    '20_attempt':'20 попыток - 1500 пыли🌸',
+    '100_attempt':'100 попытка - 7500 пыли🌸'
 }
