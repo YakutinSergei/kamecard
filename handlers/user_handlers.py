@@ -94,6 +94,10 @@ async def add_add_card_user(message: Message):
         postreSQL_attempts_user_up(message.from_user.id, 1)
         postreSQL_data_user_up(message.from_user.id)
     if attampts <= 0:
+        difference = datetime.now() - datetime.strptime(user[-2], '%Y-%m-%d %H:%M:%S.%f')
+        seconds = difference.total_seconds()
+        minutes = seconds / 60
+        hours = seconds / (60 * 60)
         await message.answer(
             text=f'Вы уже получили карту\nСледующая попытка через: {(2-int(hours))} ч. {(59-(int(minutes) % 60))} мин.')
     else:
