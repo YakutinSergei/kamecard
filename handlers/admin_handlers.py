@@ -297,9 +297,7 @@ async def back_category_command(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='удалить_admin_'))
 async def del_product_command(callback: CallbackQuery):
-    name_cards = callback.data.split('_')[-1]
-    user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(name_cards, user[3])
+    cards = postreSQL_cards_admin(callback.data.split('_')[-1])
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
     postreSQL_del_cards(cards[pg][1])
     cards.pop(pg)
