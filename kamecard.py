@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 async def set_main_menu():
     # Создаем список с командами и их описанием для кнопки menu
     main_menu_commands = [
-        BotCommand(command='/start',
-                   description='Старт'),
         BotCommand(command='/profile',
                    description='Профиль'),
         BotCommand(command='/shop',
