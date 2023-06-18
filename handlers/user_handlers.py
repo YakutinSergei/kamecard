@@ -87,7 +87,6 @@ async def add_add_card_user(message: Message):
     ran = random.randint(1, 1001)
     difference = datetime.now() - datetime.strptime(user[-2], '%Y-%m-%d %H:%M:%S.%f')
     seconds = difference.total_seconds()
-    minutes = seconds / 60
     hours = seconds / (60 * 60)
     attampts = int(user[5])
     if int(hours) >= 3:
