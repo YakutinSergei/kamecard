@@ -177,6 +177,8 @@ async def cards_print_menu(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
     cards = postreSQL_cards(category, user[3])
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
+    print(cards[pg][1])
+    print(postreSQL_cards_all_user(callback.from_user.id))
     if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
         availability = 'ПОЛУЧЕНО❗️'
     else:
@@ -217,15 +219,16 @@ async def cards_print_menu(callback: CallbackQuery):
 @router.callback_query(Text(startswith='user_forward_'))
 async def process_forward_press(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
+    pg = postreSQL_pg_up(callback.from_user.id, 1)
     cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
-    pg = postreSQL_pg_up(callback.from_user.id, 0)
+    print(cards[pg][1])
+    print(postreSQL_cards_all_user(callback.from_user.id))
     len_pg = len(cards)
     if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
         availability = 'ПОЛУЧЕНО❗️'
     else:
         availability = 'НЕ ПОЛУЧЕНО❗️'
-    if pg + 1 < len_pg:
-        pg = postreSQL_pg_up(callback.from_user.id, 1)
+    if pg < len_pg:
         str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
@@ -260,12 +263,13 @@ async def process_forward_press(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
     cards = postreSQL_cards(name_cards,user[3])
     pg = int(postreSQL_pg_up(callback.from_user.id, 0))
-    if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
-        availability = 'ПОЛУЧЕНО❗️'
-    else:
-        availability = 'НЕ ПОЛУЧЕНО❗️'
+
     if pg > 0:
         pg = postreSQL_pg_up(callback.from_user.id, -1)
+        if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
+            availability = 'ПОЛУЧЕНО❗️'
+        else:
+            availability = 'НЕ ПОЛУЧЕНО❗️'
         str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
