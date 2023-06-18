@@ -289,7 +289,7 @@ def postreSQL_pg_up(user_id, pg):
 
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT page FROM users WHERE user_id = '{user_id}'")
-            pg_user = int(cursor.fetchone()[0][0])
+            pg_user = int(cursor.fetchone()[0])
 
 
 

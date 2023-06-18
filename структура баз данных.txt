@@ -26,3 +26,23 @@ user_id
 
 Вселеная:
 наименование вселеной
+
+
+
+BOT_TOKEN=5987097612:AAEv35zsuS0eFRCTWBz3opI2b29i-pPbQbo
+
+
+host = "localhost"
+user = "postgres"
+password = "Ex-531966"
+db_name = "kamecard"
+
+
+
+BOT_TOKEN=5987097612:AAEv35zsuS0eFRCTWBz3opI2b29i-pPbQbo
+
+
+host = "localhost"
+user = "dekuxs"
+password = "qvfmH5BF"
+db_name = "kamecard"

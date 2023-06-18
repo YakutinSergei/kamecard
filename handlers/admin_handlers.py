@@ -187,7 +187,6 @@ async def cards_print_menu(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
-    user = postreSQL_users(callback.from_user.id)
     cards = postreSQL_cards_admin(callback.data.split('_')[-1])
     print(cards)
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
@@ -223,7 +222,6 @@ async def cards_print_menu(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='admin_forward_'))
 async def process_forward_press(callback: CallbackQuery):
-    user = postreSQL_users(callback.from_user.id)
     cards = postreSQL_cards_admin(callback.data.split('_')[-1])
     pg = postreSQL_pg_up(callback.from_user.id, 0)
     len_pg = len(cards)
