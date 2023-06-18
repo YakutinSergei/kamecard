@@ -193,7 +193,7 @@ async def cards_print_menu(callback: CallbackQuery):
     str_cards = cards[pg][3]
     if len(cards) > 0:
         if cards[pg][2].split('__')[0] == 'gif':
-            await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2].split('__')[1],
+            await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2][5:],
                                                                     caption=f'{cards[pg][1]}\n'
                                                                              f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                                                             f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
@@ -206,7 +206,7 @@ async def cards_print_menu(callback: CallbackQuery):
             await callback.answer()
         else:
             await bot.send_photo(chat_id=callback.from_user.id,
-                                            photo=cards[pg][2].split('__')[1],
+                                            photo=cards[pg][2][7:],
                                             caption=f'{cards[pg][1]}\n'
                                                     f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                                     f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
@@ -230,7 +230,7 @@ async def process_forward_press(callback: CallbackQuery):
         str_cards = cards[pg][3]
         if cards[pg][2].split('__')[0] == 'gif':
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaAnimation(media=cards[pg][2].split('__')[1],
+                                         media=InputMediaAnimation(media=cards[pg][2][5:],
                                                                    caption=f'{cards[pg][1]}\n'
                                                                            f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
@@ -241,7 +241,7 @@ async def process_forward_press(callback: CallbackQuery):
                                                                                        'forward'))
         else:
             await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaPhoto(media=cards[pg][2].split('__')[1],
+                                         media=InputMediaPhoto(media=cards[pg][2][7:],
                                                                caption=f'{cards[pg][1]}\n'
                                                                        f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
