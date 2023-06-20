@@ -88,15 +88,13 @@ async def add_add_card_user(message: Message):
     difference = datetime.now() - datetime.strptime(user[-2], '%Y-%m-%d %H:%M:%S.%f')
     seconds = difference.total_seconds()
     hours = seconds / (60 * 60)
+    minutes = seconds / 60
     attampts = int(user[5])
     if int(hours) >= 3:
         postreSQL_attempts_user_up(message.from_user.id, 1)
         postreSQL_data_user_up(message.from_user.id)
+        attampts += 1
     if attampts <= 0:
-        difference = datetime.now() - datetime.strptime(user[-2], '%Y-%m-%d %H:%M:%S.%f')
-        seconds = difference.total_seconds()
-        minutes = seconds / 60
-        hours = seconds / (60 * 60)
         await message.answer(
             text=f'Вы уже получили карту\nСледующая попытка через: {(2-int(hours))} ч. {(59-(int(minutes) % 60))} мин.')
     else:
@@ -120,14 +118,14 @@ async def add_card_user(name_card, message, universe):
         card_print = postgreSQL_cards_one(card_add[3])
         str_cards = card_print[3]
         if card_print[2].split('__')[0] == 'gif':
-            await bot.send_animation(chat_id=message.from_user.id, animation=card_print[2][5:],
+            await bot.send_animation(chat_id=message.chat.id, animation=card_print[2][5:],
                                      caption=f'{card_print[1]}\n'
                                              f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                              f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
                                              f'{LEXICON_CARD["health"]} {card_print[5]}\n\n'
                                              f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
         else:
-            await bot.send_photo(chat_id=message.from_user.id, photo=card_print[2][7:],
+            await bot.send_photo(chat_id=message.chat.id, photo=card_print[2][7:],
                                  caption=f'{card_print[1]}\n'
                                          f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
                                          f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
@@ -135,23 +133,23 @@ async def add_card_user(name_card, message, universe):
                                          f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
     else:
         if name_card == LEXICON_CARD_RARE['legendary']:
-            postgereSQL_dust_up(message.from_user.id, 150, LEXICON_CARD_RARE['legendary'])
+            postgereSQL_dust_up(message.chat.id, 150, LEXICON_CARD_RARE['legendary'])
             await message.answer(text='Карта которая выпала, у вас уже есть\n'
                                       'Вам начислено: 150 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['mythical']:
-            postgereSQL_dust_up(message.from_user.id, 70, LEXICON_CARD_RARE['mythical'])
+            postgereSQL_dust_up(message.chat.id, 70, LEXICON_CARD_RARE['mythical'])
             await message.answer(text='Карта которая выпала, у вас уже есть\n'
                                       'Вам начислено: 70 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['epic']:
-            postgereSQL_dust_up(message.from_user.id, 30, LEXICON_CARD_RARE['epic'])
+            postgereSQL_dust_up(message.chat.id, 30, LEXICON_CARD_RARE['epic'])
             await message.answer(text='Карта которая выпала, у вас уже есть\n'
                                       'Вам начислено: 30 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['rare']:
-            postgereSQL_dust_up(message.from_user.id, 15, LEXICON_CARD_RARE['rare'])
+            postgereSQL_dust_up(message.chat.id, 15, LEXICON_CARD_RARE['rare'])
             await message.answer(text='Карта которая выпала, у вас уже есть\n'
                                       'Вам начислено: 15 пыли🌸')
         else:
-            postgereSQL_dust_up(message.from_user.id, 10, LEXICON_CARD_RARE['usual'])
+            postgereSQL_dust_up(message.chat.id, 10, LEXICON_CARD_RARE['usual'])
             await message.answer(text='Карта которая выпала, у все уже есть\n'
                                       'Вам начислено: 10 пыли🌸')
     postreSQL_attempts_user_up(message.from_user.id, -1)
