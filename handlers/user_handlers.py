@@ -81,7 +81,7 @@ async def menu_admin(callback: CallbackQuery):
 
 
 #Получить карту
-@router.message(Text(text=LEXICON_RU['add_card']))
+@router.message(Text(text=[LEXICON_RU['add_card'], 'получить карту', 'ПОЛУЧИТЬ КАРТУ']))
 async def add_add_card_user(message: Message):
     user = postreSQL_users(message.from_user.id)
     ran = random.randint(1, 1001)
@@ -132,37 +132,121 @@ async def add_card_user(name_card, message, universe):
                                          f'{LEXICON_CARD["health"]} {card_print[5]}\n\n'
                                          f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
     else:
+        print('тут')
         if name_card == LEXICON_CARD_RARE['legendary']:
-            postgereSQL_dust_up(message.chat.id, 150, LEXICON_CARD_RARE['legendary'])
-            await message.answer(text='Карта которая выпала, у вас уже есть\n'
-                                      'Вам начислено: 150 пыли🌸')
+            print('Легенда')
+            postgereSQL_dust_up(message.from_user.id, 150)
+            if cards[ran_card][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
+                                         caption=f'{cards[ran_card][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                                 f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                                 f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                                 f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms')
+            else:
+                await bot.send_photo(chat_id=message.chat.id, photo=cards[ran_card][2][7:],
+                                     caption=f'{cards[ran_card][1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms\n\n'
+                                             f'-----------------------------------------\n'
+                                             f'❌Карта которая выпала, у вас уже есть\n'
+                                             'Вам начислено: 150 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['mythical']:
-            postgereSQL_dust_up(message.chat.id, 70, LEXICON_CARD_RARE['mythical'])
-            await message.answer(text='Карта которая выпала, у вас уже есть\n'
-                                      'Вам начислено: 70 пыли🌸')
+            print('Мифическая')
+
+            postgereSQL_dust_up(message.from_user.id, 70)
+            if cards[ran_card][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
+                                         caption=f'{cards[ran_card][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                                 f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                                 f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                                 f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms')
+            else:
+                await bot.send_photo(chat_id=message.chat.id, photo=cards[ran_card][2][7:],
+                                     caption=f'{cards[ran_card][1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms\n\n'
+                                             f'-----------------------------------------\n'
+                                             f'❌Карта которая выпала, у вас уже есть\n'
+                                             'Вам начислено: 70 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['epic']:
-            postgereSQL_dust_up(message.chat.id, 30, LEXICON_CARD_RARE['epic'])
-            await message.answer(text='Карта которая выпала, у вас уже есть\n'
-                                      'Вам начислено: 30 пыли🌸')
+            print('Эпическая')
+
+            postgereSQL_dust_up(message.from_user.id, 30)
+            if cards[ran_card][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
+                                         caption=f'{cards[ran_card][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                                 f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                                 f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                                 f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms')
+            else:
+                await bot.send_photo(chat_id=message.chat.id, photo=cards[ran_card][2][7:],
+                                     caption=f'{cards[ran_card][1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms\n\n'
+                                             f'-----------------------------------------\n'
+                                             f'❌Карта которая выпала, у вас уже есть\n'
+                                             'Вам начислено: 30 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['rare']:
-            postgereSQL_dust_up(message.chat.id, 15, LEXICON_CARD_RARE['rare'])
-            await message.answer(text='Карта которая выпала, у вас уже есть\n'
-                                      'Вам начислено: 15 пыли🌸')
+            print('Редкая')
+
+            postgereSQL_dust_up(message.from_user.id, 15)
+            if cards[ran_card][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
+                                         caption=f'{cards[ran_card][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                                 f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                                 f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                                 f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms')
+            else:
+                await bot.send_photo(chat_id=message.chat.id, photo=cards[ran_card][2][7:],
+                                     caption=f'{cards[ran_card][1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms\n\n'
+                                             f'-----------------------------------------\n'
+                                             f'❌Карта которая выпала, у вас уже есть\n'
+                                             'Вам начислено: 15 пыли🌸')
         else:
-            postgereSQL_dust_up(message.chat.id, 10, LEXICON_CARD_RARE['usual'])
-            await message.answer(text='Карта которая выпала, у все уже есть\n'
-                                      'Вам начислено: 10 пыли🌸')
+            print('Обычная')
+            postgereSQL_dust_up(message.from_user.id, 10)
+            if cards[ran_card][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
+                                         caption=f'{cards[ran_card][1]}\n'
+                                                 f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                                 f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                                 f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                                 f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms')
+            else:
+                await bot.send_photo(chat_id=message.chat.id, photo=cards[ran_card][2][7:],
+                                     caption=f'{cards[ran_card][1]}\n'
+                                             f'{LEXICON_CARD["rere"]} {cards[ran_card][3][1:]}\n'
+                                             f'{LEXICON_CARD["attack"]} {cards[0][4]}\n'
+                                             f'{LEXICON_CARD["health"]} {cards[ran_card][5]}\n\n'
+                                             f'{LEXICON_CARD["value"]} {cards[ran_card][-2]} kms\n\n'
+                                             f'-----------------------------------------\n'
+                                             f'❌Карта которая выпала, у вас уже есть\n'
+                                                'Вам начислено: 10 пыли🌸')
     postreSQL_attempts_user_up(message.from_user.id, -1)
     postreSQL_data_user_up(message.from_user.id)
 
 
 
-@router.message(Text(text='Мои карты'))
+@router.message(Text(text=['Мои карты', 'мои карты', 'МОИ КАРТЫ']))
 async def add_my_cards_user(message: Message):
     user = postreSQL_users(message.from_user.id)
     all_cards = postreSQL_cards_all_category(user[3])
     cards_user = postreSQL_cards_all_user_category(message.from_user.id, user[3])
-    await message.answer(text='Ваши карты', reply_markup=create_inline_kb(1, 'cards_user_',
+    await bot.send_message(chat_id=message.chat.id, text='Ваши карты', reply_markup=create_inline_kb(1, f'cards_user_{message.from_user.id}_',
                                                                                             f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}/{all_cards[0]}",
                                                                                             f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}/{all_cards[1]}",
                                                                                             f"{LEXICON_CARD_RARE['epic']} {cards_user[2]}/{all_cards[2]}",
@@ -172,143 +256,146 @@ async def add_my_cards_user(message: Message):
 @router.callback_query(Text(startswith='cards_user_'))
 async def cards_print_menu(callback: CallbackQuery):
     category = callback.data.split('_')[-1].split(' ')[0]
-    user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(category, user[3])
-    pg = int(postreSQL_pg_up(callback.from_user.id, -2))
-    print(cards[pg][1])
-    print(postreSQL_cards_all_user(callback.from_user.id))
-    if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
-        availability = 'ПОЛУЧЕНО❗️'
-    else:
-        availability = 'НЕ ПОЛУЧЕНО❗️'
-    if len(cards) > 0:
-        str_cards = cards[pg][3]
-        if cards[pg][2].split('__')[0] == 'gif':
-            await bot.send_animation(chat_id=callback.from_user.id, animation=cards[pg][2][5:],
-                                                                    caption=f'{availability}\n'
-                                                                            f'{cards[pg][1]}\n'
-                                                                            f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                                            f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
-                                                                    reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
-                                                                                       f'{pg + 1}/{len(cards)}',
-                                                                                       'forward'))
-            await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
-            await callback.answer()
+    user_id = int(callback.data.split('_')[2])
+    if user_id == callback.from_user.id:
+        user = postreSQL_users(callback.from_user.id)
+        cards = postreSQL_cards(category, user[3])
+        pg = int(postreSQL_pg_up(callback.from_user.id, -2))
+        print(cards[pg][1])
+        print(postreSQL_cards_all_user(callback.from_user.id))
+        if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
+            availability = 'ПОЛУЧЕНО❗️'
         else:
-            await bot.send_photo(chat_id=callback.from_user.id,
-                                            photo=cards[pg][2][7:],
-                                            caption=f'{availability}\n'
-                                                    f'{cards[pg][1]}\n'
-                                                     f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                    f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
-                                                    f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                    f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
-                                            reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
-                                                                                       f'{pg + 1}/{len(cards)}',
-                                                                                       'forward'))
-            await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
-            await callback.answer()
+            availability = 'НЕ ПОЛУЧЕНО❗️'
+        if len(cards) > 0:
+            str_cards = cards[pg][3]
+            if cards[pg][2].split('__')[0] == 'gif':
+                await bot.send_animation(chat_id=callback.message.chat.id, animation=cards[pg][2][5:],
+                                                                        caption=f'{availability}\n'
+                                                                                f'{cards[pg][1]}\n'
+                                                                                f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                                f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
+                                                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                                f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
+                                                                        reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
+                                                                                           f'{pg + 1}/{len(cards)}',
+                                                                                           'forward'))
+                await callback.answer()
+            else:
+                await bot.send_photo(chat_id=callback.message.chat.id,
+                                                photo=cards[pg][2][7:],
+                                                caption=f'{availability}\n'
+                                                        f'{cards[pg][1]}\n'
+                                                         f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n '
+                                                        f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                        f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms',
+                                                reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
+                                                                                           f'{pg + 1}/{len(cards)}',
+                                                                                           'forward'))
+                await callback.answer()
 
     await callback.answer()
 
 
 @router.callback_query(Text(startswith='user_forward_'))
 async def process_forward_press(callback: CallbackQuery):
-    user = postreSQL_users(callback.from_user.id)
-    pg = postreSQL_pg_up(callback.from_user.id, 1)
-    cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
-    print(cards[pg][1])
-    print(postreSQL_cards_all_user(callback.from_user.id))
-    len_pg = len(cards)
-    if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
-        availability = 'ПОЛУЧЕНО❗️'
-    else:
-        availability = 'НЕ ПОЛУЧЕНО❗️'
-    if pg < len_pg:
-        str_cards = cards[pg][3]
-        if cards[pg][2].split('__')[0] == 'gif':
-            await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaAnimation(media=cards[pg][2][5:],
-                                                               caption=f'{availability}\n'
-                                                                       f'{cards[pg][1]}\n'
-                                                                        f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
-                                                                        f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                                        f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
-                                         reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
-                                                                                       f'{pg + 1}/{len(cards)}',
-                                                                                       'forward'))
+    user_id = int(callback.data.split('_')[2])
+    if user_id == callback.from_user.id:
+        user = postreSQL_users(callback.from_user.id)
+        pg = postreSQL_pg_up(callback.from_user.id, 1)
+        cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
+        len_pg = len(cards)
+        if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
+            availability = 'ПОЛУЧЕНО❗️'
         else:
-            await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaPhoto(media=cards[pg][2][7:],
-                                                               caption=f'{availability}\n'
-                                                                       f'{cards[pg][1]}\n'
-                                                                        f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                                        f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
-                                                                        f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                                        f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
-                                         reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
-                                                                                       f'{pg + 1}/{len(cards)}',
-                                                                                       'forward'))
+            availability = 'НЕ ПОЛУЧЕНО❗️'
+        if pg < len_pg:
+            str_cards = cards[pg][3]
+            if cards[pg][2].split('__')[0] == 'gif':
+                await bot.edit_message_media(chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                             media=InputMediaAnimation(media=cards[pg][2][5:],
+                                                                   caption=f'{availability}\n'
+                                                                           f'{cards[pg][1]}\n'
+                                                                            f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                            f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
+                                             reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
+                                                                                           f'{pg + 1}/{len(cards)}',
+                                                                                           'forward'))
+            else:
+                await bot.edit_message_media(chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                             media=InputMediaPhoto(media=cards[pg][2][7:],
+                                                                   caption=f'{availability}\n'
+                                                                           f'{cards[pg][1]}\n'
+                                                                            f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                                            f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                                            f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                                            f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
+                                             reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
+                                                                                           f'{pg + 1}/{len(cards)}',
+                                                                                           'forward'))
 
     await callback.answer()
 
 @router.callback_query(Text(startswith='user_backward_'))
 async def process_forward_press(callback: CallbackQuery):
-    name_cards = callback.data.split('_')[-1]
-    user = postreSQL_users(callback.from_user.id)
-    cards = postreSQL_cards(name_cards,user[3])
-    pg = int(postreSQL_pg_up(callback.from_user.id, 0))
+    user_id = int(callback.data.split('_')[2])
+    if user_id == callback.from_user.id:
+        name_cards = callback.data.split('_')[-1]
+        user = postreSQL_users(callback.from_user.id)
+        cards = postreSQL_cards(name_cards,user[3])
+        pg = int(postreSQL_pg_up(callback.from_user.id, 0))
 
-    if pg > 0:
-        pg = postreSQL_pg_up(callback.from_user.id, -1)
-        if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
-            availability = 'ПОЛУЧЕНО❗️'
-        else:
-            availability = 'НЕ ПОЛУЧЕНО❗️'
-        str_cards = cards[pg][3]
-        if cards[pg][2].split('__')[0] == 'gif':
-            await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaAnimation(media=cards[pg][2][5:],
-                                         caption=f'{availability}\n'
-                                                 f'{cards[pg][1]}\n'
-                                                 f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
-                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
-                                        reply_markup=create_pagination_keyboard(cards[pg][3],'backward',
+        if pg > 0:
+            pg = postreSQL_pg_up(callback.from_user.id, -1)
+            if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
+                availability = 'ПОЛУЧЕНО❗️'
+            else:
+                availability = 'НЕ ПОЛУЧЕНО❗️'
+            str_cards = cards[pg][3]
+            if cards[pg][2].split('__')[0] == 'gif':
+                await bot.edit_message_media(chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                             media=InputMediaAnimation(media=cards[pg][2][5:],
+                                             caption=f'{availability}\n'
+                                                     f'{cards[pg][1]}\n'
+                                                     f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                    f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                    f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                    f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
+                                            reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
+                                                                                       f'{pg + 1}/{len(cards)}',
+                                                                                       'forward'))
+            else:
+                await bot.edit_message_media(chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                             media=InputMediaPhoto(media=cards[pg][2][7:],
+                                            caption=f'{availability}\n'
+                                                    f'{cards[pg][1]}\n'
+                                                    f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
+                                                    f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
+                                                    f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
+                                                    f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
+                                            reply_markup=create_pagination_keyboard(cards[pg][3], callback.from_user.id, 'backward',
                                                                                    f'{pg + 1}/{len(cards)}',
                                                                                    'forward'))
-        else:
-            await bot.edit_message_media(chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                         media=InputMediaPhoto(media=cards[pg][2][7:],
-                                        caption=f'{availability}\n'
-                                                f'{cards[pg][1]}\n'
-                                                f'{LEXICON_CARD["rere"]} {str_cards[1:]}\n'
-                                                f'{LEXICON_CARD["attack"]} {cards[pg][4]}\n'
-                                                f'{LEXICON_CARD["health"]} {cards[pg][5]}\n\n'
-                                                f'{LEXICON_CARD["value"]} {cards[pg][-2]} kms'),
-                                        reply_markup=create_pagination_keyboard(cards[pg][3], 'backward',
-                                                                               f'{pg + 1}/{len(cards)}',
-                                                                               'forward'))
     await callback.answer()
 
 #Возвращение к выбору категории карточек
-@router.callback_query(Text(text='назад_user'))
+@router.callback_query(Text(startswith='назад_user'))
 async def back_category_command(callback: CallbackQuery):
-    user = postreSQL_users(callback.from_user.id)
-    all_cards = postreSQL_cards_all_category(user[3])
-    cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user[ 3])
-    await callback.message.answer(text='Ваши карты', reply_markup=create_inline_kb(1, 'cards_user_',
-                                                                                            f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}/{all_cards[0]}",
-                                                                                            f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}/{all_cards[1]}",
-                                                                                            f"{LEXICON_CARD_RARE['epic']} {cards_user[2]}/{all_cards[2]}",
-                                                                                            f"{LEXICON_CARD_RARE['mythical']} {cards_user[3]}/{all_cards[3]}",
+    user_id = int(callback.data.split('_')[2])
+    if user_id == callback.from_user.id:
+        user = postreSQL_users(callback.from_user.id)
+        all_cards = postreSQL_cards_all_category(user[3])
+        cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user[ 3])
+        await callback.message.answer(text='Ваши карты', reply_markup=create_inline_kb(1, 'cards_user_',
+                                                                                                f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}/{all_cards[0]}",
+                                                                                                f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}/{all_cards[1]}",
+                                                                                                f"{LEXICON_CARD_RARE['epic']} {cards_user[2]}/{all_cards[2]}",
+                                                                                                f"{LEXICON_CARD_RARE['mythical']} {cards_user[3]}/{all_cards[3]}",
 
-                                                                                            f"{LEXICON_CARD_RARE['legendary']}  {cards_user[4]}/{all_cards[4]}"))
-    await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
+                                                                                                f"{LEXICON_CARD_RARE['legendary']}  {cards_user[4]}/{all_cards[4]}"))
     await callback.answer()
 
 
@@ -344,7 +431,19 @@ async def process_forward_press(callback: CallbackQuery):
 async def add_my_cards_user(message: Message):
     user = postreSQL_users(message.from_user.id)
     dust = user[4]
-    await message.answer(text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
+    await bot.send_message(chat_id=message.chat.id, text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
+                                f"{LEXICON_SHOP['1_attempt']}\n"
+                                f"{LEXICON_SHOP['20_attempt']}\n"
+                                f"{LEXICON_SHOP['100_attempt']}\n"                              
+                                f"<b>БАЛАНС: {dust} пыли🌸</b>",
+                         reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
+
+
+@router.message(Text(text=['МАГАЗИН', 'магазин', 'Магазин']))
+async def add_my_cards_user(message: Message):
+    user = postreSQL_users(message.from_user.id)
+    dust = user[4]
+    await bot.send_message(chat_id=message.chat.id, text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
                                 f"{LEXICON_SHOP['1_attempt']}\n"
                                 f"{LEXICON_SHOP['20_attempt']}\n"
                                 f"{LEXICON_SHOP['100_attempt']}\n"                              
@@ -361,9 +460,10 @@ async def process_forward_press(callback: CallbackQuery):
                                 "30 попытка - 120 рублей💵\n"
                                 "100 попытка - 450 рублей💵\n"
                                 "За покупкой писать в лс: <a href='@Dekkuxx'>@Dekkuxx</a>",
-                                chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                 reply_markup=create_inline_kb(1, 'shop_', 'Магазин'))
     await callback.answer()
+
 @router.callback_query(Text(text='shop_Магазин'))
 async def add_my_cards_user(callback: CallbackQuery):
     user = postreSQL_users(callback.from_user.id)
@@ -373,13 +473,13 @@ async def add_my_cards_user(callback: CallbackQuery):
                                 f"{LEXICON_SHOP['20_attempt']}\n"
                                 f"{LEXICON_SHOP['100_attempt']}\n"                              
                                 f"<b>БАЛАНС: {dust} пыли🌸</b>",
-                                chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                 reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
     await callback.answer()
 
 @router.callback_query(Text(text='shop_Купить за пыль'))
 async def process_forward_press(callback: CallbackQuery, state: FSMContext):
-    await bot.edit_message_text(text='Выбирите количество пыли🌸\n', chat_id=callback.from_user.id, message_id=callback.message.message_id,
+    await bot.edit_message_text(text='Выбирите количество пыли🌸\n', chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                 reply_markup=create_inline_kb(3, 'dust_shop_', '1', '20', '100', 'Отмена'))
     await state.set_state(FSMshop_dust.count)
     await callback.answer()

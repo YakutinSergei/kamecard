@@ -216,6 +216,8 @@ def postreSQL_admin(user_id):
             connect.close()
             print('[INFO] PostgresSQL closed')
 
+
+#Все карты для категории и вселенной
 def postreSQL_cards(category, universe):
     try:
         connect = psycopg2.connect(
@@ -290,7 +292,6 @@ def postreSQL_pg_up(user_id, pg):
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT page FROM users WHERE user_id = '{user_id}'")
             pg_user = int(cursor.fetchone()[0])
-
 
 
     except psycopg2.Error as _ex:
@@ -390,7 +391,7 @@ def postreSQL_universe_up(universe, user_id):
 
 
 #Добавление карт
-def postgreSQL_add_card_user(user_id, name_card, rare, universe):
+def postgreSQL_add_card_user(user_id, name_card, rare, universe):  #rare - категория
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -414,11 +415,12 @@ def postgreSQL_add_card_user(user_id, name_card, rare, universe):
 
 
 
-
+        # Проверяем есть ли такая карта у юзера
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT * FROM user_cards WHERE user_id = '{user_id}' AND name_card = '{name_card}'")
             cards = cursor.fetchone()
 
+        #Если нет то дабовляем
         if not cards:
             with connect.cursor() as cursor:
                 cursor.execute(f"INSERT INTO user_cards (user_id, rare, name_card, universe) VALUES ('{user_id}',"
@@ -426,6 +428,7 @@ def postgreSQL_add_card_user(user_id, name_card, rare, universe):
                                f"'{name_card}',"
                                f"'{universe}');")
 
+            #Возвращаем все карты юзера с новой картой
             with connect.cursor() as cursor:
                 cursor.execute(f"SELECT * FROM user_cards WHERE user_id = '{user_id}' AND name_card = '{name_card}'")
                 cards = cursor.fetchone()
@@ -475,7 +478,7 @@ def postgreSQL_cards_one(name_card):
             return cards
 
 #Обновление пыли
-def postgereSQL_dust_up(user_id, size, name_categ):
+def postgereSQL_dust_up(user_id, size):
     try:
         connect = psycopg2.connect(
             host=env('host'),
@@ -501,33 +504,33 @@ def postgereSQL_dust_up(user_id, size, name_categ):
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT sum_dust FROM users WHERE user_id = '{user_id}'")
 
-        #Обновление шанса
-        if name_categ == LEXICON_CARD_RARE['legendary']:
-            with connect.cursor() as cursor:
-                cursor.execute(
-                    f"UPDATE users SET chance_legendary = '10',  chance_epic = '{int(size_chance[0])+2}', "
-                    f"chance_mythical = '{int(size_chance[1])+2}' "
-                    f"WHERE user_id = '{user_id}';")
-
-        elif name_categ == LEXICON_CARD_RARE['mythical']:
-            with connect.cursor() as cursor:
-                cursor.execute(
-                    f"UPDATE users SET chance_mythical = '30', chance_epic = '{int(size_chance[0])+2}', "
-                    f"chance_legendary = '{int(size_chance[2])+0.2}' "
-                    f"WHERE user_id = '{user_id}';")
-
-        elif name_categ == LEXICON_CARD_RARE['epic']:
-            with connect.cursor() as cursor:
-                cursor.execute(
-                    f"UPDATE users SET chance_epic = '60',  chance_mythical = '{int(size_chance[1]) + 2}', "
-                    f" chance_legendary = '{int(size_chance[2]) + 2}' "
-                    f"WHERE user_id = '{user_id}';")
-        else:
-            with connect.cursor() as cursor:
-                cursor.execute(
-                    f"UPDATE users SET chance_epic = '{int(size_chance[0]) + 2}', chance_mythical = '{int(size_chance[1]) + 2}', "
-                    f"chance_legendary = '{int(size_chance[2]) + 2}' "
-                    f"WHERE user_id = '{user_id}';")
+        # #Обновление шанса
+        # if name_categ == LEXICON_CARD_RARE['legendary']:
+        #     with connect.cursor() as cursor:
+        #         cursor.execute(
+        #             f"UPDATE users SET chance_legendary = '10',  chance_epic = '{int(size_chance[0])+2}', "
+        #             f"chance_mythical = '{int(size_chance[1])+2}' "
+        #             f"WHERE user_id = '{user_id}';")
+        #
+        # elif name_categ == LEXICON_CARD_RARE['mythical']:
+        #     with connect.cursor() as cursor:
+        #         cursor.execute(
+        #             f"UPDATE users SET chance_mythical = '30', chance_epic = '{int(size_chance[0])+2}', "
+        #             f"chance_legendary = '{int(size_chance[2])+0.2}' "
+        #             f"WHERE user_id = '{user_id}';")
+        #
+        # elif name_categ == LEXICON_CARD_RARE['epic']:
+        #     with connect.cursor() as cursor:
+        #         cursor.execute(
+        #             f"UPDATE users SET chance_epic = '60',  chance_mythical = '{int(size_chance[1]) + 2}', "
+        #             f" chance_legendary = '{int(size_chance[2]) + 2}' "
+        #             f"WHERE user_id = '{user_id}';")
+        # else:
+        #     with connect.cursor() as cursor:
+        #         cursor.execute(
+        #             f"UPDATE users SET chance_epic = '{int(size_chance[0]) + 2}', chance_mythical = '{int(size_chance[1]) + 2}', "
+        #             f"chance_legendary = '{int(size_chance[2]) + 2}' "
+        #             f"WHERE user_id = '{user_id}';")
 
 
 
