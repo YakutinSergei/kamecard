@@ -41,7 +41,8 @@ async def db_connect():
                                                                     user_id VARCHAR(50) NOT NULL,
                                                                     rare VARCHAR(50) NOT NULL,
                                                                     name_card VARCHAR(100) NOT NULL,
-                                                                    universe VARCHAR(100) NOT NULL);''')
+                                                                    universe VARCHAR(100) NOT NULL,
+                                                                    date timestamp);''')
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS name_universes (id BIGSERIAL NOT NULL PRIMARY KEY,
                            name VARCHAR(50) NOT NULL);''')
@@ -419,10 +420,11 @@ def postgreSQL_add_card_user(user_id, name_card, rare, universe):  #rare - ка�
         #Если нет то дабовляем
         if not cards:
             with connect.cursor() as cursor:
-                cursor.execute(f"INSERT INTO user_cards (user_id, rare, name_card, universe) VALUES ('{user_id}',"
+                cursor.execute(f"INSERT INTO user_cards (user_id, rare, name_card, universe, date) VALUES ('{user_id}',"
                                f"'{rare}',"
                                f"'{name_card}',"
-                               f"'{universe}');")
+                               f"'{universe}',"
+                               f"'{datetime.now()}');")
 
             #Возвращаем все карты юзера с новой картой
             with connect.cursor() as cursor:
@@ -449,7 +451,7 @@ def postgreSQL_add_card_user(user_id, name_card, rare, universe):  #rare - ка�
             connect.close()
             print('[INFO] PostgresSQL closed')
 
-#Получение одной карыт
+#Получение одной кары
 def postgreSQL_cards_one(name_card):
     try:
         connect = psycopg2.connect(
@@ -577,8 +579,6 @@ def postreSQL_data_user_up(user_id):
             password=env('password'),
             database=env('db_name')
         )
-        connect.autocommit = True
-
         connect.autocommit = True
 
         with connect.cursor() as cursor:
