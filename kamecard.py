@@ -3,7 +3,7 @@ import logging
 
 from aiogram.types import BotCommand
 
-from handlers import other_handlers, user_handlers, admin_handlers
+from handlers import other_handlers, user_handlers, admin_handlers, promo_handkers
 from create_bot import bot, dp
 from data_base import postreSQL_bd
 
@@ -31,10 +31,13 @@ async def main():
     logger.info('Starting bot')
 
     #Подключаемся к базе данных
-    postreSQL_bd.postreSQL_connect()
+    #postreSQL_bd.postreSQL_connect()
+    await postreSQL_bd.db_connect()
     # Регистриуем роутеры в диспетчере
     dp.include_router(user_handlers.router)
+
     dp.include_router(admin_handlers.router)
+    dp.include_router(promo_handkers.router)
     dp.include_router(other_handlers.router)
 
     # Пропускаем накопившиеся апдейты и запускаем polling

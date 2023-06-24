@@ -68,7 +68,8 @@ async def process_moderator_command(message: Message):
                                                                                                                LEXICON_CARD['add_card'],
                                                                                                                LEXICON_CARD['universe'],
                                                                                                                LEXICON_CARD['add_inuverse'],
-                                                                                                               LEXICON_CARD['add_attempt']))
+                                                                                                               LEXICON_CARD['add_attempt'],
+                                                                                                               LEXICON_CARD['promo'],))
     else:
         await bot.send_message(message.from_user.id, text='Вы не являетесь администратором')
 #region Дабавление карточки
@@ -362,7 +363,8 @@ async def process_name_card(message: Message, state: FSMContext):
                                                                                            LEXICON_CARD['add_card'],
                                                                                            LEXICON_CARD['universe'],
                                                                                            LEXICON_CARD['add_inuverse'],
-                                                                                           LEXICON_CARD['add_attempt']))
+                                                                                           LEXICON_CARD['add_attempt'],
+                                                                                           LEXICON_CARD['promo'],))
     await state.clear()
 
 @router.callback_query(Text(text=LEXICON_CARD['universe']))

@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncpg
 
 import psycopg2
 from environs import Env
@@ -8,65 +9,60 @@ env = Env()
 env.read_env()
 
 # Функция подключения к базе
-def postreSQL_connect():
+
+
+async def db_connect():
     try:
-        connect = psycopg2.connect(
-            host=env('host'),
-            user=env('user'),
-            password=env('password'),
-            database=env('db_name')
-        )
+        conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
+        await conn.execute('''CREATE TABLE IF NOT EXISTS users(id BIGSERIAL NOT NULL PRIMARY KEY,
+                                                                user_id INTEGER NOT NULL,
+                                                               login VARCHAR(50) NOT NULL,
+                                                               universe VARCHAR(50) NOT NULL,             
+                                                               sum_dust VARCHAR(50) NOT NULL,            
+                                                               attempts VARCHAR(50) NOT NULL,  
+                                                               status VARCHAR(10) NOT NULL, 
+                                                               page VARCHAR(50),
+                                                               chance_epic VARCHAR(10),
+                                                               chance_mythical VARCHAR(10),
+                                                               chance_legendary VARCHAR(10),
+                                                               data VARCHAR(50) NOT NULL,
+                                                               points VARCHAR(50) NOT NULL);''')
 
-        connect.autocommit = True
-        with connect.cursor() as cursor:
-            cursor.execute("CREATE TABLE IF NOT EXISTS users ("
-                           "id BIGSERIAL NOT NULL PRIMARY KEY,"
-                           "user_id VARCHAR(30) NOT NULL,"
-                           "login VARCHAR(50) NOT NULL,"
-                           "universe VARCHAR(50) NOT NULL,"             # Наименование вселенной
-                           "sum_dust VARCHAR(50) NOT NULL,"             # количество пыли 
-                           "attempts VARCHAR(50) NOT NULL,"          # количество попыток
-                           "status VARCHAR(10) NOT NULL,"          # количество попыток
-                           "page VARCHAR(50),"           # страница
-                           "chance_epic VARCHAR(10),"           # шанс эпический
-                           "chance_mythical VARCHAR(10),"           # шанс мифической
-                           "chance_legendary VARCHAR(10),"      # шанс легендарный
-                           "data VARCHAR(50) NOT NULL,"
-                           "points VARCHAR(50) NOT NULL);") #Количество очков
+        await conn.execute('''CREATE TABLE IF NOT EXISTS cards(id BIGSERIAL NOT NULL PRIMARY KEY,
+                                                               name VARCHAR(50) NOT NULL,
+                                                               img VARCHAR(100) NOT NULL,   
+                                                               rare VARCHAR(50) NOT NULL,            
+                                                               attack VARCHAR(50) NOT NULL,          
+                                                               protection VARCHAR(50) NOT NULL,      
+                                                               value VARCHAR(50) NOT NULL,           
+                                                               universe VARCHAR(50) NOT NULL);''')
 
-        with connect.cursor() as cursor:
-            cursor.execute("CREATE TABLE IF NOT EXISTS cards ("
-                           "id BIGSERIAL NOT NULL PRIMARY KEY,"
-                           "name VARCHAR(50) NOT NULL,"
-                           "img VARCHAR(100) NOT NULL,"    
-                           "rare VARCHAR(50) NOT NULL,"             # Редкость
-                           "attack VARCHAR(50) NOT NULL,"           # атака 
-                           "protection VARCHAR(50) NOT NULL,"       # защита 
-                           "value VARCHAR(50) NOT NULL,"            # Ценность
-                           "universe VARCHAR(50) NOT NULL);")       # Вселенная
+        await conn.execute('''CREATE TABLE IF NOT EXISTS user_cards(id BIGSERIAL NOT NULL PRIMARY KEY,
+                                                                    user_id VARCHAR(50) NOT NULL,
+                                                                    rare VARCHAR(50) NOT NULL,
+                                                                    name_card VARCHAR(100) NOT NULL,
+                                                                    universe VARCHAR(100) NOT NULL);''')
 
-        with connect.cursor() as cursor:
-            cursor.execute("CREATE TABLE IF NOT EXISTS user_cards ("
-                           "id BIGSERIAL NOT NULL PRIMARY KEY,"
-                           "user_id VARCHAR(50) NOT NULL,"
-                           "rare VARCHAR(50) NOT NULL,"
-                           "name_card VARCHAR(100) NOT NULL,"
-                           "universe VARCHAR(100) NOT NULL);")
+        await conn.execute('''CREATE TABLE IF NOT EXISTS name_universes (id BIGSERIAL NOT NULL PRIMARY KEY,
+                           name VARCHAR(50) NOT NULL);''')
 
-        with connect.cursor() as cursor:
-             cursor.execute("CREATE TABLE IF NOT EXISTS name_universes ("
-                           "id BIGSERIAL NOT NULL PRIMARY KEY,"
-                           "name VARCHAR(50) NOT NULL);")
+        await conn.execute('''CREATE TABLE IF NOT EXISTS promo(id BIGSERIAL NOT NULL PRIMARY KEY, 
+                                                                promocode VARCHAR(50) NOT NULL,
+                                                                validity INTEGER NOT NULL, 
+                                                                number_attempts INTEGER NOT NULL);''')
 
+        await conn.execute('''CREATE TABLE IF NOT EXISTS promo_user(id BIGSERIAL NOT NULL PRIMARY KEY, 
+                                                                promocode VARCHAR(50) NOT NULL,
+                                                                user_id INTEGER NOT NULL);''')
 
-
-    except psycopg2.Error as _ex:
+    except Exception as _ex:
         print('[INFO] Error ', _ex)
 
     finally:
-        if connect:
-            connect.close()
+        if conn:
+            await conn.close()
             print('[INFO] PostgresSQL closed')
+
 
 # Информация про юзера
 def postreSQL_users(user_id):

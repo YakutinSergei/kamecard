@@ -27,6 +27,14 @@ LEXICON_CARD: dict[str:str] = {
     'attack': '🗡 Атака: ',
     'health': '❤️ Здоровье: ',
     'value': '🔖 Раритетность: ',
+    'promo': 'Промокоды',
+
+}
+
+
+LEXICON_PROMO: dict[str:str] = {
+    'add':'➕Добавить',
+    'listPromo':'👁‍🗨действующие промокоды',
 }
 
 LEXICON_CARD_RARE: dict[str:str] = {
@@ -34,7 +42,8 @@ LEXICON_CARD_RARE: dict[str:str] = {
     'rare': '🍃Редкая',
     'epic':'👾Эпическая',
     'mythical': '🎴Мифическая',
-    'legendary': '💮Легендарная'
+    'legendary': '💮Легендарная',
+
 }
 
 LIXICON_UNIVERSE: dict[str:str] = {

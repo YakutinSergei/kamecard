@@ -1,0 +1,64 @@
+import asyncpg
+
+from environs import Env
+from lexicon.lexicon_ru import LEXICON_CARD_RARE
+
+env = Env()
+env.read_env()
+
+
+async def promo_add(promo):
+    try:
+        conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
+        await conn.execute('''INSERT INTO promo(promocode, validity, number_attempts) 
+                                                        VALUES($1, $2, $3)''',
+                           promo['promocode'], int(promo['validity']), int(promo['number_attempts']))
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            print('[INFO] PostgresSQL closed')
+
+# Список промокодов
+async def all_promo():
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        promo = await conn.fetch(f'SELECT * FROM promo WHERE validity > 0')
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return promo
+            print('[INFO] PostgresSQL closed')
+
+
+async def promo_user(name, user_id):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        promo = await conn.fetchrow(f"SELECT * FROM promo WHERE promocode='{name}'")
+        await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
+
+        if promo:
+            if not await conn.fetchrow(f"SELECT * FROM promo_user WHERE promocode='{name}' AND user_id = {user_id}"):
+                await conn.execute('''INSERT INTO promo_user(promocode, user_id) VALUES($1, $2)''', name, user_id)
+                add = True
+            else:
+                add = False
+
+
+
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return promo, add
+            print('[INFO] PostgresSQL closed')
+
