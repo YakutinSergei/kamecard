@@ -42,11 +42,18 @@ async def promo_user(name, user_id):
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
         promo = await conn.fetchrow(f"SELECT * FROM promo WHERE promocode='{name}'")
-        await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
 
         if promo:
             if not await conn.fetchrow(f"SELECT * FROM promo_user WHERE promocode='{name}' AND user_id = {user_id}"):
                 await conn.execute('''INSERT INTO promo_user(promocode, user_id) VALUES($1, $2)''', name, user_id)
+                await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
+                attemps = await conn.fetchrow(f"SELECT number_attempts FROM promo WHERE promocode='{name}'")
+                user_attemps = await conn.fetchrow(f"SELECT attempts FROM users WHERE user_id='{user_id}'")
+                print(attemps['number_attempts'])
+                print(user_attemps['attempts'])
+                await conn.fetchrow(f"UPDATE users SET attempts = $1 WHERE user_id=$2",
+                                    str(attemps['number_attempts']+ int(user_attemps['attempts'])), str(user_id))
+
                 add = True
             else:
                 add = False

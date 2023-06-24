@@ -78,32 +78,32 @@ async def process_name_card(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMAdmin_promo.number_attempts))
 async def process_name_card(message: Message, state: FSMContext):
     await state.update_data(number_attempts=message.text)
-    promo =  await state.get_data()
+    promo = await state.get_data()
     await state.clear()
     print(promo)
     await promo_add(promo)
     await message.answer(text="✅Промокод успешно добавлен")
-    await state.set_state(FSMAdmin_promo.number_attempts)
 
 
 # Если в чате ввел промокод
 @router.message(Text(text=['Ввести промокод', 'ввести промокод', 'ВВЕСТИ ПРОМОКОД']))
 async def promo_input(message: Message, state: FSMContext):
     await state.set_state(FSMUser_promo.promocode)
-    await bot.send_message(chat_id=message.from_user.id, text='Введите промокод')
+    await bot.send_message(chat_id=message.chat.id, text='Введите промокод')
 
 
 @router.message(StateFilter(FSMUser_promo.promocode))
 async def input_user_promo(message: Message, state: FSMContext):
     promo = await promo_user(message.text, message.from_user.id)
     if promo[0]:
-        print('УРААА')
         if promo[1]:
-            print('Промокод активирован')
+            await bot.send_message(chat_id=message.chat.id, text="✅Промокод успешно активирован\n"
+                                      f"Добавлено попыток: {promo['number_attempts']}")
+        else:
+            await bot.send_message(chat_id=message.chat.id, text="❌Вы уже активировали этот промокод")
+    else:
+        await bot.send_message(chat_id=message.chat.id, text="❌Такого промокода нет")
 
-
-        # await promo_user_add(message.from_user.id, message.text)
-        # await promo_validity_up(message.text)
 
 
     await state.clear()
