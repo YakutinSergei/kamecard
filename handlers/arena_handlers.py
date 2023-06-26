@@ -5,25 +5,59 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
 from create_bot import bot
 from data_base.arena_db import teams_db
-from data_base.postreSQL_bd import postreSQL_users
+from data_base.postreSQL_bd import postreSQL_users, user_db
 from data_base.promo_db import promo_add, all_promo, promo_user
 from keyboards.admin_kb import create_inline_kb
+from keyboards.arena_kb import arena_menu_kb, arena_teams_kb
 
-from lexicon.lexicon_ru import LEXICON_CARD, LEXICON_PROMO, LEXICON_CARD_RARE, LEXICON_RU
+from lexicon.lexicon_ru import LEXICON_CARD, LEXICON_PROMO, LEXICON_CARD_RARE, LEXICON_RU, LEXICON_ARENA
 
 router: Router = Router()
 
 
-@router.message(Text(text=['меню', 'Меню', 'МЕНЮ']))
-async def process_name_card(message: Message, state: FSMContext):
-    user = postreSQL_users(message.from_user.id)
-    teams = teams_db(message.from_user.id, user[3])
-    await message.answer(text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n\n'
+
+@router.callback_query(Text(startswith='change_🏟Арена'))
+async def process_name_card(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+    teams = await teams_db(callback.from_user.id, user['universe'])
+    full_attack = teams['card_1_attack']+teams['card_2_attack']+teams['card_3_attack']+teams['card_4_attack']
+    full_health = teams['card_1_protection']+teams['card_2_protection']+teams['card_3_protection']+teams['card_4_protection']
+    await callback.message.answer(text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n\n'
                               f'🔢<b>Твоя команда</b>\n'
-                              f'1️⃣ \n'
-                              f'2️⃣ \n'
-                              f'3️⃣ \n'
-                              f'4️⃣ \n'
+                              f'1️⃣ {teams["card_1_name"]}\n'
+                              f'2️⃣ {teams["card_2_name"]}\n'
+                              f'3️⃣ {teams["card_3_name"]}\n'
+                              f'4️⃣ {teams["card_4_name"]}\n'
                               f'_________________\n'
-                              f'⚔️Атака: \n'
-                              f'❤️Здоровье: \n')
+                              f'⚔️Атака: {full_attack}\n'  
+                              f'❤️Здоровье: {full_health}\n',
+                         reply_markup=arena_menu_kb(teams))
+    await callback.answer()
+
+@router.callback_query(Text(text=LEXICON_ARENA['teams']))
+async def teams_user(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+    teams = await teams_db(callback.from_user.id, user['universe'])
+    await callback.message.answer(
+        text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n'
+             f'➖➖➖➖➖➖➖➖➖➖\n'
+             f'🔢<b>Твоя команда</b>\n'
+             f'1️⃣ {teams["card_1_name"]}\n'
+             f'2️⃣ {teams["card_2_name"]}\n'
+             f'3️⃣ {teams["card_3_name"]}\n'
+             f'4️⃣ {teams["card_4_name"]}\n',
+        reply_markup=arena_teams_kb(teams))
+    await callback.answer()
+
+
+@router.callback_query(Text(startswith='btn_card_'))
+async def card_add(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+    all_cards = arena_cards_user(callback.from_user.id, user['universe'])
+    await bot.send_message(chat_id=callback.message.chat.id, text=f'❗️Карты игрока {user[2]}',
+                           reply_markup=create_inline_kb(1, f'cards_arena_{cards_user.from_user.id}_',
+                                                         f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}/{all_cards[0]}",
+                                                         f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}/{all_cards[1]}",
+                                                         f"{LEXICON_CARD_RARE['epic']} {cards_user[2]}/{all_cards[2]}",
+                                                         f"{LEXICON_CARD_RARE['mythical']} {cards_user[3]}/{all_cards[3]}",
+                                                         f"{LEXICON_CARD_RARE['legendary']}  {cards_user[4]}/{all_cards[4]}"))

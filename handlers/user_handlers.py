@@ -75,7 +75,7 @@ async def add_universe(message: Message):
 
 @router.callback_query(Text(startswith='user_universe_'))
 async def menu_admin(callback: CallbackQuery):
-    await callback.message.answer(text=f'Вы выбрали вселенную {callback.data.split("_")[-1]}', reply_markup= menu_user)
+    await callback.message.answer(text=f'Вы выбрали вселенную {callback.data.split("_")[-1]}', reply_markup=menu_user)
     postreSQL_universe_up(callback.data.split("_")[-1], callback.from_user.id)
     await callback.answer()
 
@@ -423,9 +423,9 @@ async def add_my_cards_user(message: Message):
                               f"🃏Всего карт: {cards_user}/{all_cards}\n"
                               f"🔖Очки: {user[-1]}\n"
                               f"🎖Топ вселенной: {top} место\n"
-                              f"🐢Логин: {user[2]}", reply_markup=create_inline_kb(1, 'change_', 'Сменить вселенную'))
+                              f"🐢Логин: {user[2]}", reply_markup=create_inline_kb(2, 'change_', '🏬МАГАЗИН','🏟Арена', 'Сменить вселенную'))
 
-@router.callback_query(Text(startswith='change_'))
+@router.callback_query(Text(startswith='change_Сменить вселенную'))
 async def process_forward_press(callback: CallbackQuery):
     inuverse = postgreSQL_all_universe()
     all_inuverse = list()

@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from lexicon.lexicon_ru import LEXICON_RU, LEXICON_ADMIN
+from lexicon.lexicon_ru import LEXICON_RU, LEXICON_ADMIN, LEXICON_SHOP
 
 
 def create_inline_kb(width: int,

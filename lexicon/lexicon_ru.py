@@ -55,8 +55,15 @@ LIXICON_UNIVERSE: dict[str:str] = {
 }
 
 LEXICON_SHOP: dict[str:str] = {
-    'shop':'МАГАЗИН🏬',
+    'shop':'🏬МАГАЗИН',
     '1_attempt': '1 попытка - 75 пыли🌸',
     '20_attempt':'20 попыток - 1500 пыли🌸',
     '100_attempt':'100 попыток - 7500 пыли🌸'
+}
+
+LEXICON_ARENA: dict[str:str] = {
+    'search':'🔍Поиск игры',
+    'no_search': '🚫 Сначала собери команду',
+    'teams':'📣 Команда',
+    'statistics':'📈 Сатистика'
 }

@@ -35,7 +35,7 @@ async def all_promo():
             return promo
             print('[INFO] PostgresSQL closed')
 
-
+#Активация промокода
 async def promo_user(name, user_id):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),

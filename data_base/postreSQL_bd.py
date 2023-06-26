@@ -59,7 +59,7 @@ async def db_connect():
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS arena(id BIGSERIAL NOT NULL PRIMARY KEY, 
                                                                 user_id INTEGER NOT NULL,
-                                                                iniverse VARCHAR(50) NOT NULL,
+                                                                universe VARCHAR(50) NOT NULL,
                                                                 card_1_name  VARCHAR(100), 
                                                                 card_1_attack INTEGER,
                                                                 card_1_protection INTEGER,
@@ -73,6 +73,7 @@ async def db_connect():
                                                                 card_4_attack INTEGER,
                                                                 card_4_protection INTEGER,
                                                                 date timestamp,
+                                                                attemps INTEGER,
                                                                 ful INTEGER NOT NULL);''')
     except Exception as _ex:
         print('[INFO] Error ', _ex)
@@ -84,6 +85,24 @@ async def db_connect():
 
 
 # Информация про юзера
+async def user_db(user_id):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        user = await conn.fetchrow(f"SELECT * FROM users WHERE user_id = '{user_id}'")
+
+
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            conn.close()
+            return user
+            print('[INFO] PostgresSQL closed')
+
+
 def postreSQL_users(user_id):
     try:
         connect = psycopg2.connect(
@@ -469,7 +488,7 @@ def postgreSQL_add_card_user(user_id, name_card, rare, universe):  #rare - ка�
             connect.close()
             print('[INFO] PostgresSQL closed')
 
-#Получение одной кары
+#Получение одной карты
 def postgreSQL_cards_one(name_card):
     try:
         connect = psycopg2.connect(
@@ -519,35 +538,6 @@ def postgereSQL_dust_up(user_id, size):
 
         with connect.cursor() as cursor:
             cursor.execute(f"SELECT sum_dust FROM users WHERE user_id = '{user_id}'")
-
-        # #Обновление шанса
-        # if name_categ == LEXICON_CARD_RARE['legendary']:
-        #     with connect.cursor() as cursor:
-        #         cursor.execute(
-        #             f"UPDATE users SET chance_legendary = '10',  chance_epic = '{int(size_chance[0])+2}', "
-        #             f"chance_mythical = '{int(size_chance[1])+2}' "
-        #             f"WHERE user_id = '{user_id}';")
-        #
-        # elif name_categ == LEXICON_CARD_RARE['mythical']:
-        #     with connect.cursor() as cursor:
-        #         cursor.execute(
-        #             f"UPDATE users SET chance_mythical = '30', chance_epic = '{int(size_chance[0])+2}', "
-        #             f"chance_legendary = '{int(size_chance[2])+0.2}' "
-        #             f"WHERE user_id = '{user_id}';")
-        #
-        # elif name_categ == LEXICON_CARD_RARE['epic']:
-        #     with connect.cursor() as cursor:
-        #         cursor.execute(
-        #             f"UPDATE users SET chance_epic = '60',  chance_mythical = '{int(size_chance[1]) + 2}', "
-        #             f" chance_legendary = '{int(size_chance[2]) + 2}' "
-        #             f"WHERE user_id = '{user_id}';")
-        # else:
-        #     with connect.cursor() as cursor:
-        #         cursor.execute(
-        #             f"UPDATE users SET chance_epic = '{int(size_chance[0]) + 2}', chance_mythical = '{int(size_chance[1]) + 2}', "
-        #             f"chance_legendary = '{int(size_chance[2]) + 2}' "
-        #             f"WHERE user_id = '{user_id}';")
-
 
 
     except psycopg2.Error as _ex:
