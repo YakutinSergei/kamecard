@@ -98,7 +98,7 @@ async def input_user_promo(message: Message, state: FSMContext):
     if promo[0]:
         if promo[1]:
             await bot.send_message(chat_id=message.chat.id, text="✅Промокод успешно активирован\n"
-                                      f"Добавлено попыток: {promo['number_attempts']}")
+                                      f"Добавлено попыток: {promo[0]['number_attempts']}")
         else:
             await bot.send_message(chat_id=message.chat.id, text="❌Вы уже активировали этот промокод")
     else:

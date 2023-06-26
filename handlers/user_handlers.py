@@ -132,9 +132,7 @@ async def add_card_user(name_card, message, universe):
                                          f'{LEXICON_CARD["health"]} {card_print[5]}\n\n'
                                          f'{LEXICON_CARD["value"]} {card_print[-2]} kms')
     else:
-        print('тут')
         if name_card == LEXICON_CARD_RARE['legendary']:
-            print('Легенда')
             postgereSQL_dust_up(message.from_user.id, 150)
             if cards[ran_card][2].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
@@ -154,8 +152,6 @@ async def add_card_user(name_card, message, universe):
                                              f'❌Карта которая выпала, у вас уже есть\n'
                                              'Вам начислено: 150 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['mythical']:
-            print('Мифическая')
-
             postgereSQL_dust_up(message.from_user.id, 70)
             if cards[ran_card][2].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
@@ -175,8 +171,6 @@ async def add_card_user(name_card, message, universe):
                                              f'❌Карта которая выпала, у вас уже есть\n'
                                              'Вам начислено: 70 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['epic']:
-            print('Эпическая')
-
             postgereSQL_dust_up(message.from_user.id, 30)
             if cards[ran_card][2].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
@@ -196,8 +190,6 @@ async def add_card_user(name_card, message, universe):
                                              f'❌Карта которая выпала, у вас уже есть\n'
                                              'Вам начислено: 30 пыли🌸')
         elif name_card == LEXICON_CARD_RARE['rare']:
-            print('Редкая')
-
             postgereSQL_dust_up(message.from_user.id, 15)
             if cards[ran_card][2].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
@@ -217,7 +209,6 @@ async def add_card_user(name_card, message, universe):
                                              f'❌Карта которая выпала, у вас уже есть\n'
                                              'Вам начислено: 15 пыли🌸')
         else:
-            print('Обычная')
             postgereSQL_dust_up(message.from_user.id, 10)
             if cards[ran_card][2].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=message.chat.id, animation=cards[ran_card][2][5:],
@@ -312,6 +303,7 @@ async def process_forward_press(callback: CallbackQuery):
         pg = postreSQL_pg_up(callback.from_user.id, 1)
         cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
         len_pg = len(cards)
+        print(cards[pg][1])
         if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
             availability = 'ПОЛУЧЕНО❗️'
         else:

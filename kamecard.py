@@ -3,7 +3,7 @@ import logging
 
 from aiogram.types import BotCommand
 
-from handlers import other_handlers, user_handlers, admin_handlers, promo_handkers
+from handlers import other_handlers, user_handlers, admin_handlers, promo_handkers, arena_handlers
 from create_bot import bot, dp
 from data_base import postreSQL_bd
 
@@ -35,7 +35,7 @@ async def main():
     await postreSQL_bd.db_connect()
     # Регистриуем роутеры в диспетчере
     dp.include_router(user_handlers.router)
-
+    dp.include_router(arena_handlers.router)
     dp.include_router(admin_handlers.router)
     dp.include_router(promo_handkers.router)
     dp.include_router(other_handlers.router)

@@ -56,6 +56,24 @@ async def db_connect():
                                                                 promocode VARCHAR(50) NOT NULL,
                                                                 user_id INTEGER NOT NULL);''')
 
+
+        await conn.execute('''CREATE TABLE IF NOT EXISTS arena(id BIGSERIAL NOT NULL PRIMARY KEY, 
+                                                                user_id INTEGER NOT NULL,
+                                                                iniverse VARCHAR(50) NOT NULL,
+                                                                card_1_name  VARCHAR(100), 
+                                                                card_1_attack INTEGER,
+                                                                card_1_protection INTEGER,
+                                                                card_2_name  VARCHAR(100), 
+                                                                card_2_attack INTEGER,
+                                                                card_2_protection INTEGER,
+                                                                card_3_name  VARCHAR(100), 
+                                                                card_3_attack INTEGER,
+                                                                card_3_protection INTEGER,
+                                                                card_4_name  VARCHAR(100), 
+                                                                card_4_attack INTEGER,
+                                                                card_4_protection INTEGER,
+                                                                date timestamp,
+                                                                ful INTEGER NOT NULL);''')
     except Exception as _ex:
         print('[INFO] Error ', _ex)
 

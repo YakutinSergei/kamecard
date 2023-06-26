@@ -1,7 +1,6 @@
 import asyncpg
 
 from environs import Env
-from lexicon.lexicon_ru import LEXICON_CARD_RARE
 
 env = Env()
 env.read_env()
@@ -49,8 +48,6 @@ async def promo_user(name, user_id):
                 await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
                 attemps = await conn.fetchrow(f"SELECT number_attempts FROM promo WHERE promocode='{name}'")
                 user_attemps = await conn.fetchrow(f"SELECT attempts FROM users WHERE user_id='{user_id}'")
-                print(attemps['number_attempts'])
-                print(user_attemps['attempts'])
                 await conn.fetchrow(f"UPDATE users SET attempts = $1 WHERE user_id=$2",
                                     str(attemps['number_attempts']+ int(user_attemps['attempts'])), str(user_id))
 
