@@ -58,6 +58,7 @@ async def card_user_arena(user_id, category):
 
             print('[INFO] PostgresSQL closed')
 
+#Обновление страницы
 async def page_up_db(user_id, pg_up):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
@@ -67,9 +68,38 @@ async def page_up_db(user_id, pg_up):
             await conn.fetch(f"UPDATE users SET page = '0' WHERE user_id = '{user_id}';")
         else:
             pg = await conn.fetchrow(f"SELECT page FROM users WHERE user_id='{user_id}'")
-            print(int(pg['page']))
             page = int(pg['page']) + pg_up
-            print(page)
+            await conn.fetch(f"UPDATE users SET page = '{page}' WHERE user_id = '{user_id}';")
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+
+            print('[INFO] PostgresSQL closed')
+
+async def choice_card_db(user_id, name_card, num_card):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+
+        await conn.fetch(f"UPDATE users SET page = '0' WHERE user_id = '{user_id}';")
+
+        card = await conn.fetchrow(f"SELECT * FROM cards WHERE name='{name_card}'")
+
+        await conn.fetch(f"UPDATE arena SET card_{num_card}_name = '{card['name']}', "
+                                            f"card_{num_card}_attack = '{card['attack']}', "
+                                            f"card_{num_card}_protection = '{card['protection']}' "
+                                            f"WHERE user_id = '{user_id}' AND universe = '{card['universe']}';")
+
+        user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{card['universe']}'")
+
+        if not user['card_1_name'] == 'Пусто' and not user['card_2_name'] == 'Пусто' and not user['card_3_name'] == 'Пусто' and not user['card_4_name'] == 'Пусто':
+            await conn.fetch(f"UPDATE arena SET ful = '1', "
+                             f"WHERE user_id = '{user_id}' AND universe = '{card['universe']}';")
+
     except Exception as _ex:
         print('[INFO] Error ', _ex)
 
