@@ -94,3 +94,14 @@ def arena_teams_kb(teams):
     return kb_builder.as_markup()
 
 
+def create_pag_keyboard_arena(user_id: int, categore: str, btn_card: str, *buttons: str) -> InlineKeyboardMarkup:
+    # Инициализируем билдер
+    kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
+    # Добавляем в билдер ряд с кнопками
+    kb_builder.row(*[InlineKeyboardButton(
+        text=LEXICON_ADMIN[button] if button in LEXICON_ADMIN else button,
+        callback_data=f'arena_{button}_{user_id}_{categore}_{btn_card}') for button in buttons]).row(InlineKeyboardButton(text='✅ВЫБРАТЬ',
+                                                                                                               callback_data=f'choice_arena_{user_id}_{btn_card}')).\
+        row(InlineKeyboardButton(text='🔙НАЗАД', callback_data=f'back_arena_{user_id}_{btn_card}'))
+    # Возвращаем объект инлайн-клавиатуры
+    return kb_builder.as_markup()

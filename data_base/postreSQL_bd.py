@@ -15,7 +15,7 @@ async def db_connect():
     try:
         conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
         await conn.execute('''CREATE TABLE IF NOT EXISTS users(id BIGSERIAL NOT NULL PRIMARY KEY,
-                                                                user_id INTEGER NOT NULL,
+                                                                user_id BIGSERIAL NOT NULL,
                                                                login VARCHAR(50) NOT NULL,
                                                                universe VARCHAR(50) NOT NULL,             
                                                                sum_dust VARCHAR(50) NOT NULL,            
@@ -58,7 +58,7 @@ async def db_connect():
 
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS arena(id BIGSERIAL NOT NULL PRIMARY KEY, 
-                                                                user_id INTEGER NOT NULL,
+                                                                user_id BIGSERIAL NOT NULL,
                                                                 universe VARCHAR(50) NOT NULL,
                                                                 card_1_name  VARCHAR(100), 
                                                                 card_1_attack INTEGER,

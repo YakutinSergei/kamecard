@@ -40,21 +40,36 @@ async def teams_db(user_id: int, universe: str):
 
 #Получение карт юзера которые могут учавствовать на арене
 
-
-
-async def card_user_arena(user_id, universe, category, btn):
+async def card_user_arena(user_id, category):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
-        user_card = await conn.fetchrow(f"SELECT * FROM user_cards WHERE rare = '{category}' AND user_id='{user_id}' AND universe = '{universe}'")
-        card_all = await conn.fetchrow(f"SELECT name FROM cards WHERE rare = '{category}' AND universe = '{universe}'")
+        card = await conn.fetch(f"SELECT cards.name, cards.img, cards.rare, cards.attack, cards.protection,"
+                                f"cards.value, cards.universe FROM cards JOIN user_cards "
+                                f"ON cards.name = name_card AND user_id='{user_id}' AND user_cards.rare = '{category}'")
 
-        card = []
-        for i in range(len(user_card)):
-            if user_card['name_card'] in card_all:
-                print(ne)
-        return user
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
 
+    finally:
+        if conn:
+            return card
+            await conn.close()
+
+            print('[INFO] PostgresSQL closed')
+
+async def page_up_db(user_id, pg_up):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        if pg_up == -2:
+            await conn.fetch(f"UPDATE users SET page = '0' WHERE user_id = '{user_id}';")
+        else:
+            pg = await conn.fetchrow(f"SELECT page FROM users WHERE user_id='{user_id}'")
+            print(int(pg['page']))
+            page = int(pg['page']) + pg_up
+            print(page)
     except Exception as _ex:
         print('[INFO] Error ', _ex)
 
