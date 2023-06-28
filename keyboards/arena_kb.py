@@ -92,3 +92,5 @@ def arena_teams_kb(teams):
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
+
+

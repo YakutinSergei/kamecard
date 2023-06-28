@@ -252,8 +252,6 @@ async def cards_print_menu(callback: CallbackQuery):
         user = postreSQL_users(callback.from_user.id)
         cards = postreSQL_cards(category, user[3])
         pg = int(postreSQL_pg_up(callback.from_user.id, -2))
-        print(cards[pg][1])
-        print(postreSQL_cards_all_user(callback.from_user.id))
         if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
             availability = 'ПОЛУЧЕНО❗️'
         else:

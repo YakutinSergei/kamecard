@@ -52,6 +52,9 @@ def create_inline_kb_universe_user(width: int,
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
+
+
+
 def create_pagination_keyboard(name_card: str, user_id: int,  *buttons: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()

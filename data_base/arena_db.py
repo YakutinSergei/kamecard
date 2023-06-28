@@ -39,12 +39,15 @@ async def teams_db(user_id: int, universe: str):
 
 
 #Получение карт юзера которые могут учавствовать на арене
-async def arena_cards_user(user_id: int, universe: str, rare: str):
+
+
+
+async def card_user_arena(user_id, universe, category, btn):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
-        user_card = await conn.fetchrow(f"SELECT * FROM user_cards WHERE rare = '{rare}' AND user_id='{user_id}' AND universe = '{universe}'")
-        card_all = await conn.fetchrow(f"SELECT name FROM cards WHERE rare = '{rare}' AND universe = '{universe}'")
+        user_card = await conn.fetchrow(f"SELECT * FROM user_cards WHERE rare = '{category}' AND user_id='{user_id}' AND universe = '{universe}'")
+        card_all = await conn.fetchrow(f"SELECT name FROM cards WHERE rare = '{category}' AND universe = '{universe}'")
 
         card = []
         for i in range(len(user_card)):
