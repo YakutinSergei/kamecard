@@ -1,10 +1,14 @@
+import random
+from datetime import datetime
+
 from aiogram import Router
 from aiogram.filters import Text, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
-from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db
+from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
+    arena_attemps_up, arena_name_bd
 from data_base.postreSQL_bd import postreSQL_users, user_db, postreSQL_cards_all_category, \
     postreSQL_cards_all_user_category
 from data_base.promo_db import promo_add, all_promo, promo_user
@@ -70,8 +74,19 @@ async def card_add(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='card_arena'))
 async def choice_card(callback: CallbackQuery):
-    print(callback.data)
-    if int(callback.data.split('__')[0].split('_')[-1]) == int(callback.from_user.id):
+    if callback.data.split("__")[-1] ==  LEXICON_RU['back']:
+            user = await user_db(callback.from_user.id)
+            teams = await teams_db(callback.from_user.id, user['universe'])
+            await callback.message.answer(
+                text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n'
+                     f'➖➖➖➖➖➖➖➖➖➖\n'
+                     f'🔢<b>Твоя команда</b>\n'
+                     f'1️⃣ {teams["card_1_name"]}\n'
+                     f'2️⃣ {teams["card_2_name"]}\n'
+                     f'3️⃣ {teams["card_3_name"]}\n'
+                     f'4️⃣ {teams["card_4_name"]}\n',
+                reply_markup=arena_teams_kb(teams))
+    elif int(callback.data.split('__')[0].split('_')[-1]) == int(callback.from_user.id):
         btn_card = callback.data.split('__')[1].split('_')[-1]
         await page_up_db(callback.from_user.id, -2)
         user = await user_db(callback.from_user.id)
@@ -266,4 +281,49 @@ async def back_arena_command(callback: CallbackQuery):
              f'⚔️Атака: {full_attack}\n'
              f'❤️Здоровье: {full_health}\n',
         reply_markup=arena_menu_kb(teams))
+    await callback.answer()
+
+
+@router.callback_query(Text(startswith=LEXICON_ARENA['search']))
+async def search_match(callback: CallbackQuery):
+    if int(callback.data.split('_')[-1]) == callback.from_user.id:
+        user = await user_db(callback.from_user.id)
+        teams = await teams_db(callback.from_user.id, user['universe'])
+        opponent_card = await opponent_card_db(callback.from_user.id, user['universe'])
+        difference = datetime.now() - teams['date']
+        seconds = difference.total_seconds()
+        hours = seconds / (60 * 60)
+        minutes = seconds / 60
+        attampts = int(teams['attemps'])
+        if int(hours) >= 1:
+            arena_attemps_up(callback.from_user.id, 1)
+            # postreSQL_attempts_user_up(message.from_user.id, 1)
+            # postreSQL_data_user_up(message.from_user.id)
+            attampts += 1
+        if attampts <= 0:
+            await callback.answer(
+                text=f'Вы уже учавствовали в битве\nСледующая попытка через:  {(59 - (int(minutes) % 60))} мин.', show_alert=True)
+        elif opponent_card:
+            n = random.randint(0, len(opponent_card) - 1)
+            name_opp = await arena_name_bd(callback.from_user.id, opponent_card[n]['user_id'])
+            print(name_opp)
+            teams = await teams_db(callback.from_user.id, user['universe'])
+            full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
+                'card_4_attack']
+            full_health = teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
+                'card_4_protection']
+
+
+            #Количество атаки противника
+            opp_attack = opponent_card[n]['card_1_attack'] + opponent_card[n]['card_2_attack'] +\
+                         opponent_card[n]['card_3_attack'] + opponent_card[n]['card_4_attack']
+            #Количество защиты противника
+            opp_health = opponent_card[n]['card_1_protection'] + opponent_card[n]['card_2_protection'] + \
+                         opponent_card[n]['card_3_protection'] + opponent_card[n]['card_4_protection']
+
+            await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
+                                               f'{name_opp[0]} 👊🏻 {name_opp[1]}' )
+
+            await arena_attemps_up(callback.from_user.id, -1)
+
     await callback.answer()

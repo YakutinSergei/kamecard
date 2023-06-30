@@ -109,3 +109,53 @@ async def choice_card_db(user_id, name_card, num_card):
             await conn.close()
 
             print('[INFO] PostgresSQL closed')
+
+
+#Поиск карт противника
+async def opponent_card_db(user_id, universe):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        opponent_card = await conn.fetch(f"SELECT * FROM arena WHERE user_id !='{user_id}' AND universe = '{universe}'")
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return opponent_card
+            print('[INFO] PostgresSQL closed')
+
+# Обнвовление попыток арены
+async def arena_attemps_up(user_id, attemps):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        await conn.fetch(f"UPDATE arena SET attemps = attemps + {attemps}, date = '{datetime.datetime.now()}' WHERE user_id = '{user_id}'")
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            print('[INFO] PostgresSQL closed')
+
+#Получение имени игрока
+async def arena_name_bd(user_id, user_opp):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        name_user = await conn.fetchrow(f"SELECT login FROM users WHERE user_id ='{user_id}'")
+        name_opp = await conn.fetchrow(f"SELECT login FROM users WHERE user_id ='{user_opp}'")
+
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return name_user['login'], name_opp['login']
+            print('[INFO] PostgresSQL closed')
