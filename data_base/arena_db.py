@@ -8,7 +8,7 @@ env = Env()
 env.read_env()
 
 
-async def teams_db(user_id: int, universe: str):
+async def teams_db(user_id, universe: str):
     try:
         conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{universe}'")
@@ -97,7 +97,8 @@ async def choice_card_db(user_id, name_card, num_card):
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{card['universe']}'")
 
         if not user['card_1_name'] == 'Пусто' and not user['card_2_name'] == 'Пусто' and not user['card_3_name'] == 'Пусто' and not user['card_4_name'] == 'Пусто':
-            await conn.fetch(f"UPDATE arena SET ful = '1', "
+            print('ttttt')
+            await conn.fetch(f"UPDATE arena SET ful = '1' "
                              f"WHERE user_id = '{user_id}' AND universe = '{card['universe']}';")
 
     except Exception as _ex:
