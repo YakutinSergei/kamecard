@@ -7,8 +7,9 @@ from aiogram.types import CallbackQuery, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
 from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
     arena_attemps_up, arena_name_bd, opponent_card_name, dust_arena_up, all_users_statistics
-from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category
+from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category, postreSQL_point_all_user
 from keyboards.arena_kb import arena_menu_kb, arena_teams_kb, create_pag_keyboard_arena, create_inline_kb_arena
+from keyboards.user_kb import create_inline_kb
 
 from lexicon.lexicon_ru import LEXICON_CARD, LEXICON_CARD_RARE, LEXICON_RU, LEXICON_ARENA
 
@@ -38,14 +39,17 @@ async def arena(callback: CallbackQuery):
 #Статистика
 @router.callback_query(Text(startswith=LEXICON_ARENA['statistics']))
 async def statistics(callback: CallbackQuery):
-    users = await all_users_statistics()
+    users = await all_users_statistics(callback.from_user.id)
+
     list_arena = ""
-    for i in range(10):
-        list_arena +=f'{i+1}. {users[i]["login"]} - {users[i]["points"]}\n'
+    for i in range(len(users[0])):
+        list_arena +=f'{i+1}. {users[0][i]["login"]} - {users[0][i]["points"]}\n'
     await callback.message.answer(text='🏆Топ 10 игроков\n'
                                        '________________\n'
                                        f'{list_arena}'
-                                       f'_____________\n')
+                                       f'_____________\n'
+                                       f'Ваше место в топе - {users[1]}',
+                                  reply_markup=create_inline_kb(2, 'change_', '🏬МАГАЗИН','🏟Арена', 'Сменить вселенную'))
     # user = await user_db(callback.from_user.id)
     # teams = await teams_db(callback.from_user.id, user['universe'])
     # full_attack = teams['card_1_attack']+teams['card_2_attack']+teams['card_3_attack']+teams['card_4_attack']

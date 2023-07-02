@@ -200,12 +200,17 @@ async def dust_arena_up(user_id):
             print('[INFO] PostgresSQL closed')
 
 
-async def all_users_statistics():
+async def all_users_statistics(user_id):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
+        i_users = None
         users = await conn.fetch(f"SELECT *FROM users ORDER BY points DESC")
-        print(users)
+        for i in range(len(users)):
+            if user_id == users[i]['user_id']:
+                i_users = i+1
+
+        users = await conn.fetch(f"SELECT *FROM users ORDER BY points DESC LIMIT 10")
 
     except Exception as _ex:
         print('[INFO] Error ', _ex)
@@ -213,5 +218,5 @@ async def all_users_statistics():
     finally:
         if conn:
             await conn.close()
-            return users
+            return users, i_users
             print('[INFO] PostgresSQL closed')
