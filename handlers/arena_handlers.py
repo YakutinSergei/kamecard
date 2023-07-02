@@ -50,20 +50,6 @@ async def statistics(callback: CallbackQuery):
                                        f'_____________\n'
                                        f'Ваше место в топе - {users[1]}',
                                   reply_markup=create_inline_kb(2, 'change_', '🏬МАГАЗИН','🏟Арена', 'Сменить вселенную'))
-    # user = await user_db(callback.from_user.id)
-    # teams = await teams_db(callback.from_user.id, user['universe'])
-    # full_attack = teams['card_1_attack']+teams['card_2_attack']+teams['card_3_attack']+teams['card_4_attack']
-    # full_health = teams['card_1_protection']+teams['card_2_protection']+teams['card_3_protection']+teams['card_4_protection']
-    # await callback.message.answer(text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n\n'
-    #                           f'🔢<b>Твоя команда</b>\n'
-    #                           f'1️⃣ {teams["card_1_name"]}\n'
-    #                           f'2️⃣ {teams["card_2_name"]}\n'
-    #                           f'3️⃣ {teams["card_3_name"]}\n'
-    #                           f'4️⃣ {teams["card_4_name"]}\n'
-    #                           f'_________________\n'
-    #                           f'⚔️Атака: {full_attack}\n'
-    #                           f'❤️Здоровье: {full_health}\n',
-    #                      reply_markup=arena_menu_kb(teams))
     await callback.answer()
 
 @router.callback_query(Text(startswith=LEXICON_ARENA['teams']))

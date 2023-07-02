@@ -35,8 +35,8 @@ async def main():
     await postreSQL_bd.db_connect()
     # Регистриуем роутеры в диспетчере
     dp.include_router(user_handlers.router)
-    dp.include_router(arena_handlers.router)
     dp.include_router(pvp_handlers.router)
+    dp.include_router(arena_handlers.router)
     dp.include_router(admin_handlers.router)
     dp.include_router(promo_handkers.router)
     dp.include_router(other_handlers.router)
