@@ -11,6 +11,8 @@ env.read_env()
 async def teams_db(user_id, universe: str):
     try:
         conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
+        print(user_id, 'Ид пользователя')
+        print(universe, 'влесенная пользователя')
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{universe}'")
         print(user)
         if not user:
