@@ -274,6 +274,22 @@ def postreSQL_cards(category, universe):
             connect.close()
             print('[INFO] PostgresSQL closed')
 
+async def cards_aw(category, univer):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        cards = await conn.fetch(f"SELECT * FROM cards WHERE  rare = '{category}' AND universe = '{univer}'")
+        print(cards)
+
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return cards
+            print('[INFO] PostgresSQL closed')
 
 #Показ карточек админа
 def postreSQL_cards_admin(category):

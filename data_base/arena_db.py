@@ -79,6 +79,7 @@ async def page_up_db(user_id, pg_up):
 
             print('[INFO] PostgresSQL closed')
 
+
 async def choice_card_db(user_id, name_card, num_card):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
@@ -159,3 +160,23 @@ async def arena_name_bd(user_id, user_opp):
             await conn.close()
             return name_user['login'], name_opp['login']
             print('[INFO] PostgresSQL closed')
+
+
+# Имя соперника
+async def opponent_card_name(name, universe):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+
+        user_id = await conn.fetchrow(f"SELECT user_id FROM users WHERE login ='{name}'")
+        opponent_card = await conn.fetch(f"SELECT * FROM arena WHERE user_id = '{user_id['user_id']}' AND universe = '{universe}'")
+
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return opponent_card
+            print('[INFO] PostgresSQL closed')
+

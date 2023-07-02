@@ -2,20 +2,15 @@ import random
 from datetime import datetime
 
 from aiogram import Router
-from aiogram.filters import Text, StateFilter
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import CallbackQuery, Message, InputMediaAnimation, InputMediaPhoto
+from aiogram.filters import Text
+from aiogram.types import CallbackQuery, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
 from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
-    arena_attemps_up, arena_name_bd
-from data_base.postreSQL_bd import postreSQL_users, user_db, postreSQL_cards_all_category, \
-    postreSQL_cards_all_user_category
-from data_base.promo_db import promo_add, all_promo, promo_user
-from keyboards.admin_kb import create_inline_kb
+    arena_attemps_up, arena_name_bd, opponent_card_name
+from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category
 from keyboards.arena_kb import arena_menu_kb, arena_teams_kb, create_pag_keyboard_arena, create_inline_kb_arena
 
-from lexicon.lexicon_ru import LEXICON_CARD, LEXICON_PROMO, LEXICON_CARD_RARE, LEXICON_RU, LEXICON_ARENA
+from lexicon.lexicon_ru import LEXICON_CARD, LEXICON_CARD_RARE, LEXICON_RU, LEXICON_ARENA
 
 router: Router = Router()
 
@@ -70,6 +65,75 @@ async def card_add(callback: CallbackQuery):
                                                              f"{LEXICON_CARD_RARE['mythical']} {cards_user[3]}",
                                                              f"{LEXICON_CARD_RARE['legendary']}  {cards_user[4]}",
                                                              LEXICON_RU['back']))
+    await callback.answer()
+
+
+@router.callback_query(Text(startswith='card_arena_at_'))
+async def choice_card(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+
+    if int(callback.data.split('_')[5]) == user['id']:
+
+
+        name_opp = callback.data.split('_')[3]
+
+        opponent_card = await opponent_card_name(name_opp, user['universe'])
+        print(opponent_card)
+        # Количество атаки противника
+        opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
+                     opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']
+        n = int(callback.data.split('_')[4])
+        teams = await teams_db(callback.from_user.id, user['universe'])
+        full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
+            'card_4_attack']
+        full_health = (teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
+            'card_4_protection']) - (opp_attack * (n-1))
+        # Количество защиты противника
+        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] + \
+                     opponent_card[0]['card_3_protection'] + opponent_card[0]['card_4_protection']) - (full_attack*(n-1))
+
+
+        if opp_health > full_attack and full_health > opp_attack:
+            await callback.message.edit_text(text=f'👊🏻🏟 Сражение между игроками \n'
+                                               f'{user["login"]} 👊🏻 {name_opp}\n\n'
+                                               f'Раунд {n}\n\n'
+                                               f'{user["login"]}\n'
+                                               f'➳ Наносит ⚔️{full_attack} урона\n'
+                                               f'{name_opp}\n'
+                                               f'➳ ❤️{opp_health} ➠ 💔{opp_health - full_attack}\n'
+                                               f'✖️✖️✖️✖️✖️✖️\n\n'
+                                               f'{name_opp}\n'
+                                               f'➳ Наносит ⚔️{opp_attack} урона\n'
+                                               f'{user["login"]}\n'
+                                               f'➳ ❤️{full_health} ➠ 💔{full_health - opp_attack}\n',
+                                          reply_markup=create_inline_kb_arena(1, f'at_{name_opp}_'
+                                                                                 f'{n+1}_{user["id"]}_',
+                                                                              '👊Атаковать'))  # Имя соперника_здоровье мое_здоровье соперника_атака соперника
+        elif opp_health <= full_attack:
+            await callback.message.edit_text(text=f'👊🏻🏟 Сражение между игроками \n'
+                                               f'{user["login"]} 👊🏻 {name_opp}\n\n'
+                                               f'Раунд {n}\n\n'
+                                               f'{user["login"]}\n'
+                                               f'➳ Наносит ⚔️{full_attack} урона\n'
+                                               f'{name_opp}\n'
+                                               f'➳ ❤️{opp_health} ➠ 💔0\n'
+                                               f'✖️✖️✖️✖️✖️✖️\n\n'
+                                               f'👏🏻Ты победил\n'
+                                               f'🎁Тебе начислено 5 пыли🌸')
+        else:
+            await callback.message.edit_text(text=f'👊🏻🏟 Сражение между игроками \n'
+                                               f'{user["login"]} 👊🏻 {name_opp}\n\n'
+                                               f'Раунд {n}\n\n'
+                                               f'{user["login"]}\n'
+                                               f'➳ Наносит ⚔️{full_attack} урона\n'
+                                               f'{name_opp}\n'
+                                               f'➳ ❤️{opp_health} ➠ 💔{opp_health - full_attack}\n'
+                                               f'✖️✖️✖️✖️✖️✖️\n\n'
+                                               f'{name_opp}\n'
+                                               f'➳ Наносит ⚔️{opp_attack} урона\n'
+                                               f'➳ ❤️{full_health} ➠ 💔0\n'
+                                               f'✖️✖️✖️✖️✖️✖️\n'
+                                               f'Ты проиграл\n')
     await callback.answer()
 
 @router.callback_query(Text(startswith='card_arena'))
@@ -320,10 +384,50 @@ async def search_match(callback: CallbackQuery):
             #Количество защиты противника
             opp_health = opponent_card[n]['card_1_protection'] + opponent_card[n]['card_2_protection'] + \
                          opponent_card[n]['card_3_protection'] + opponent_card[n]['card_4_protection']
+            if opp_health > full_attack and full_health > opp_attack:
+                await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
+                                                   f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
+                                                   f'Раунд 1\n\n'
+                                                   f'{name_opp[0]}\n'
+                                                   f'➳ Наносит ⚔️{full_attack} урона\n'
+                                                   f'{name_opp[1]}\n'
+                                                   f'➳ ❤️{opp_health} ➠ 💔{opp_health - full_attack}\n'
+                                                   f'✖️✖️✖️✖️✖️✖️\n\n'
+                                                   f'{name_opp[1]}\n'
+                                                   f'➳ Наносит ⚔️{opp_attack} урона\n\n'
+                                                   f'➳ ❤️{full_health} ➠ 💔{full_health - opp_attack}\n',
+                                              reply_markup=create_inline_kb_arena(1, f'at_{name_opp[1]}_2_{user["id"]}_',
+                                                                                  '👊Атаковать')) #Имя соперника_здоровье мое_здоровье соперника_атака соперника
+            elif opp_health <= full_attack:
+                await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
+                                                   f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
+                                                   f'Раунд 1\n\n'
+                                                   f'{name_opp[0]}\n'
+                                                   f'➳ Наносит ⚔️{full_attack} урона\n\n'
+                                                   f'{name_opp[1]}\n'
+                                                   f'➳ ❤️{opp_health} ➠ 💔0\n'
+                                                   f'✖️✖️✖️✖️✖️✖️\n'
+                                                   f'👏🏻Ты победил\n'
+                                                   f'🎁Тебе начислено 5 пыли🌸')
+            else:
+                await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
+                                                   f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
+                                                   f'Раунд 1\n\n'
+                                                   f'{name_opp[0]}\n'
+                                                   f'➳ Наносит ⚔️{full_attack} урона\n\n'
+                                                   f'{name_opp[1]}\n'
+                                                   f'➳ ❤️{opp_health} ➠ 💔{opp_health - full_attack}\n'
+                                                   f'✖️✖️✖️✖️✖️✖️\n'
+                                                   f'{name_opp[1]}\n'
+                                                   f'➳ Наносит ⚔️{opp_attack} урона\n\n'
+                                                   f'➳ ❤️{full_health} ➠ 💔0\n'
+                                                   f'✖️✖️✖️✖️✖️✖️\n'
+                                                   f'Ты проиграл\n')
 
-            await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
-                                               f'{name_opp[0]} 👊🏻 {name_opp[1]}' )
 
             await arena_attemps_up(callback.from_user.id, -1)
 
     await callback.answer()
+
+
+

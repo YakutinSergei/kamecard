@@ -6,12 +6,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State, default_state
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto, InputMediaAnimation
 
+from data_base.arena_db import opponent_card_name
 from data_base.postgreSQL_bd_universal import postgreSQL_all_universe
 from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD_RARE, LEXICON_SHOP, LEXICON_CARD
 from data_base.postreSQL_bd import postreSQL_users, postreSQL_login, postreSQL_user_add, postreSQL_universe_up, \
     postreSQL_cards, postgreSQL_add_card_user, postgreSQL_cards_one, postgereSQL_dust_up, postreSQL_attempts_user_up, \
     postreSQL_data_user_up, postreSQL_cards_all_category, postreSQL_cards_all_user_category, postreSQL_pg_up, \
-    postreSQL_cards_all_user, postreSQL_point_all_user, postgereSQL_dust_shop
+    postreSQL_cards_all_user, postreSQL_point_all_user, postgereSQL_dust_shop, cards_aw, user_db
 from keyboards.user_kb import create_inline_kb, universe_kb, create_inline_kb_universe_user, menu_user, \
     create_pagination_keyboard
 import random
@@ -83,9 +84,10 @@ async def menu_admin(callback: CallbackQuery):
 #Получить карту
 @router.message(Text(text=[LEXICON_RU['add_card'], 'получить карту', 'ПОЛУЧИТЬ КАРТУ']))
 async def add_add_card_user(message: Message):
-    user = postreSQL_users(message.from_user.id)
+    #user = postreSQL_users(message.from_user.id)
+    user = await user_db(message.from_user.id)
     ran = random.randint(1, 1001)
-    difference = datetime.now() - datetime.strptime(user[-2], '%Y-%m-%d %H:%M:%S.%f')
+    difference = datetime.now() - datetime.strptime(user['data'], '%Y-%m-%d %H:%M:%S.%f')
     seconds = difference.total_seconds()
     hours = seconds / (60 * 60)
     minutes = seconds / 60
@@ -99,21 +101,24 @@ async def add_add_card_user(message: Message):
             text=f'Вы уже получили карту\nСледующая попытка через: {(2-int(hours))} ч. {(59-(int(minutes) % 60))} мин.')
     else:
         if ran <= int(user[10]):
-            await add_card_user(LEXICON_CARD_RARE['legendary'], message, user[3])
+            await add_card_user(LEXICON_CARD_RARE['legendary'], message, user['universe'])
         elif ran <= int(user[9]):
-            await add_card_user(LEXICON_CARD_RARE['mythical'], message, user[3])
+            await add_card_user(LEXICON_CARD_RARE['mythical'], message, user['universe'])
         elif ran <= int(user[8]):
-            await add_card_user(LEXICON_CARD_RARE['epic'], message, user[3])
+            await add_card_user(LEXICON_CARD_RARE['epic'], message, user['universe'])
         elif ran <= 150:
-            await add_card_user(LEXICON_CARD_RARE['rare'], message, user[3])
+            await add_card_user(LEXICON_CARD_RARE['rare'], message, user['universe'])
         else:
-            await add_card_user(LEXICON_CARD_RARE['usual'], message, user[3])
+            await add_card_user(LEXICON_CARD_RARE['usual'], message, user['universe'])
 
 #Функция добавления карты
 async def add_card_user(name_card, message, universe):
-    cards = postreSQL_cards(name_card, universe)
+    # cards = postreSQL_cards(name_card, universe)
+    # print(cards)
+    cards = await cards_aw(name_card, universe)
     ran_card = random.randint(0, len(cards)-1)
-    card_add = postgreSQL_add_card_user(message.from_user.id, cards[ran_card][1], cards[ran_card][3], universe)
+    print(cards[ran_card]['name'])
+    card_add = postgreSQL_add_card_user(message.from_user.id, cards[ran_card]['name'], cards[ran_card]['rare'], universe)
     if card_add:
         card_print = postgreSQL_cards_one(card_add[3])
         str_cards = card_print[3]
@@ -301,7 +306,6 @@ async def process_forward_press(callback: CallbackQuery):
         pg = postreSQL_pg_up(callback.from_user.id, 1)
         cards = postreSQL_cards(callback.data.split('_')[-1], user[3])
         len_pg = len(cards)
-        print(cards[pg][1])
         if cards[pg][1] in postreSQL_cards_all_user(callback.from_user.id):
             availability = 'ПОЛУЧЕНО❗️'
         else:
