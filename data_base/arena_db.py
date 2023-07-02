@@ -12,6 +12,7 @@ async def teams_db(user_id, universe: str):
     try:
         conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{universe}'")
+        print(user)
         if not user:
             await conn.execute('''INSERT INTO arena(user_id, universe, 
                                                     card_1_name, card_1_attack, card_1_protection,
@@ -98,7 +99,6 @@ async def choice_card_db(user_id, name_card, num_card):
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{card['universe']}'")
 
         if not user['card_1_name'] == 'Пусто' and not user['card_2_name'] == 'Пусто' and not user['card_3_name'] == 'Пусто' and not user['card_4_name'] == 'Пусто':
-            print('ttttt')
             await conn.fetch(f"UPDATE arena SET ful = '1' "
                              f"WHERE user_id = '{user_id}' AND universe = '{card['universe']}';")
 
@@ -180,3 +180,19 @@ async def opponent_card_name(name, universe):
             return opponent_card
             print('[INFO] PostgresSQL closed')
 
+
+async def dust_arena_up(user_id):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        sum_dust = await conn.fetchrow(f"SELECT sum_dust FROM users WHERE user_id ='{user_id}'")
+
+        await conn.fetch(f"UPDATE users SET sum_dust = '{int(sum_dust['sum_dust']) + 5}'"
+                         f"WHERE user_id = '{user_id}';")
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            print('[INFO] PostgresSQL closed')

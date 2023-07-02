@@ -6,7 +6,7 @@ from aiogram.filters import Text
 from aiogram.types import CallbackQuery, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
 from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
-    arena_attemps_up, arena_name_bd, opponent_card_name
+    arena_attemps_up, arena_name_bd, opponent_card_name, dust_arena_up
 from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category
 from keyboards.arena_kb import arena_menu_kb, arena_teams_kb, create_pag_keyboard_arena, create_inline_kb_arena
 
@@ -78,7 +78,6 @@ async def choice_card(callback: CallbackQuery):
         name_opp = callback.data.split('_')[3]
 
         opponent_card = await opponent_card_name(name_opp, user['universe'])
-        print(opponent_card)
         # Количество атаки противника
         opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
                      opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']
@@ -120,6 +119,7 @@ async def choice_card(callback: CallbackQuery):
                                                f'✖️✖️✖️✖️✖️✖️\n\n'
                                                f'👏🏻Ты победил\n'
                                                f'🎁Тебе начислено 5 пыли🌸')
+            await dust_arena_up(callback.from_user.id)
         else:
             await callback.message.edit_text(text=f'👊🏻🏟 Сражение между игроками \n'
                                                f'{user["login"]} 👊🏻 {name_opp}\n\n'
@@ -193,15 +193,12 @@ async def choice_card(callback: CallbackQuery):
 # Кнопка вперед
 @router.callback_query(Text(startswith='ar_forward_'))
 async def process_forward_press(callback: CallbackQuery):
-    print(callback.data)
     user_id = int(callback.data.split('_')[2])
     if user_id == int(callback.from_user.id):
         btn_card = callback.data.split('_')[-1]
         user = await user_db(callback.from_user.id)
         pg = int(user['page'])
         category = callback.data.split('_')[-3]
-        print(callback.data)
-        print(category)
         cards = await card_user_arena(user['user_id'], category)
         if len(cards) > (pg + 1):
             await page_up_db(callback.from_user.id, 1)
@@ -303,7 +300,6 @@ async def back_category_command(callback: CallbackQuery):
 @router.callback_query(Text(startswith='choice_'))
 async def choice_card(callback: CallbackQuery):
     user_id = int(callback.data.split('_')[1])
-    print(callback.data)
     if user_id == callback.from_user.id:
         user = await user_db(callback.from_user.id)
         teams = await teams_db(callback.from_user.id, user['universe'])
@@ -370,7 +366,6 @@ async def search_match(callback: CallbackQuery):
         elif opponent_card:
             n = random.randint(0, len(opponent_card) - 1)
             name_opp = await arena_name_bd(callback.from_user.id, opponent_card[n]['user_id'])
-            print(name_opp)
             teams = await teams_db(callback.from_user.id, user['universe'])
             full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
                 'card_4_attack']
@@ -409,6 +404,7 @@ async def search_match(callback: CallbackQuery):
                                                    f'✖️✖️✖️✖️✖️✖️\n'
                                                    f'👏🏻Ты победил\n'
                                                    f'🎁Тебе начислено 5 пыли🌸')
+                await dust_arena_up(callback.from_user.id)
             else:
                 await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
                                                    f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
