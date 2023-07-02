@@ -26,7 +26,7 @@ async def db_connect():
                                                                chance_mythical VARCHAR(10),
                                                                chance_legendary VARCHAR(10),
                                                                data VARCHAR(50) NOT NULL,
-                                                               points VARCHAR(50) NOT NULL);''')
+                                                               points BIGSERIAL NOT NULL);''')
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS cards(id BIGSERIAL NOT NULL PRIMARY KEY,
                                                                name VARCHAR(50) NOT NULL,

@@ -6,7 +6,7 @@ from aiogram.filters import Text
 from aiogram.types import CallbackQuery, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
 from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
-    arena_attemps_up, arena_name_bd, opponent_card_name, dust_arena_up
+    arena_attemps_up, arena_name_bd, opponent_card_name, dust_arena_up, all_users_statistics
 from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category
 from keyboards.arena_kb import arena_menu_kb, arena_teams_kb, create_pag_keyboard_arena, create_inline_kb_arena
 
@@ -17,7 +17,7 @@ router: Router = Router()
 
 
 @router.callback_query(Text(startswith='change_🏟Арена'))
-async def process_name_card(callback: CallbackQuery):
+async def arena(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
     teams = await teams_db(callback.from_user.id, user['universe'])
     full_attack = teams['card_1_attack']+teams['card_2_attack']+teams['card_3_attack']+teams['card_4_attack']
@@ -32,6 +32,34 @@ async def process_name_card(callback: CallbackQuery):
                               f'⚔️Атака: {full_attack}\n'  
                               f'❤️Здоровье: {full_health}\n',
                          reply_markup=arena_menu_kb(teams))
+    await callback.answer()
+
+
+#Статистика
+@router.callback_query(Text(startswith=LEXICON_ARENA['statistics']))
+async def statistics(callback: CallbackQuery):
+    users = await all_users_statistics()
+    list_arena = ""
+    for i in range(len(users)):
+        list_arena +=f'{i+1}. {users[i]["login"]} - {users[i]["points"]}\n'
+    await callback.message.answer(text='🏆Топ 10 игроков\n'
+                                       '________________\n'
+                                       f'{list_arena}'
+                                       f'_____________\n')
+    # user = await user_db(callback.from_user.id)
+    # teams = await teams_db(callback.from_user.id, user['universe'])
+    # full_attack = teams['card_1_attack']+teams['card_2_attack']+teams['card_3_attack']+teams['card_4_attack']
+    # full_health = teams['card_1_protection']+teams['card_2_protection']+teams['card_3_protection']+teams['card_4_protection']
+    # await callback.message.answer(text=f'🏟 {user[2]}, ты можешь собрать команду из карт и сражаться с другими игроками\n\n'
+    #                           f'🔢<b>Твоя команда</b>\n'
+    #                           f'1️⃣ {teams["card_1_name"]}\n'
+    #                           f'2️⃣ {teams["card_2_name"]}\n'
+    #                           f'3️⃣ {teams["card_3_name"]}\n'
+    #                           f'4️⃣ {teams["card_4_name"]}\n'
+    #                           f'_________________\n'
+    #                           f'⚔️Атака: {full_attack}\n'
+    #                           f'❤️Здоровье: {full_health}\n',
+    #                      reply_markup=arena_menu_kb(teams))
     await callback.answer()
 
 @router.callback_query(Text(startswith=LEXICON_ARENA['teams']))
@@ -67,7 +95,7 @@ async def card_add(callback: CallbackQuery):
                                                              LEXICON_RU['back']))
     await callback.answer()
 
-
+#атака на арене
 @router.callback_query(Text(startswith='card_arena_at_'))
 async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
@@ -295,7 +323,7 @@ async def back_category_command(callback: CallbackQuery):
                                                                    LEXICON_RU['back']))
     await callback.answer()
 
-
+#Выбор карты
 @router.callback_query(Text(startswith='choice_'))
 async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
