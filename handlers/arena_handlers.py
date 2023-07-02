@@ -73,8 +73,6 @@ async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
 
     if int(callback.data.split('_')[5]) == user['id']:
-
-
         name_opp = callback.data.split('_')[3]
 
         opponent_card = await opponent_card_name(name_opp, user['universe'])
@@ -167,7 +165,7 @@ async def choice_card(callback: CallbackQuery):
                                                                                 f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                                                 f'_______________________________\n'
                                                                                 f'❗️Карты игрока {user["login"]}',
-                                                                        reply_markup=create_pag_keyboard_arena(callback.from_user.id,
+                                                                        reply_markup=create_pag_keyboard_arena(user["id"],
                                                                                                                category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                                                'backward',
                                                                                                                 f'{pg + 1}/{len(cards)}',
@@ -183,7 +181,7 @@ async def choice_card(callback: CallbackQuery):
                                                          f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                          f'_______________________________\n'
                                                          f'❗️Карты игрока {user["login"]}',
-                                                reply_markup=create_pag_keyboard_arena(callback.from_user.id, category+f'_{cards[pg]["name"]}_{btn_card}',
+                                                reply_markup=create_pag_keyboard_arena(user['id'], category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                      'backward',
                                                                                            f'{pg + 1}/{len(cards)}',
                                                                                            'forward'))
@@ -193,10 +191,10 @@ async def choice_card(callback: CallbackQuery):
 # Кнопка вперед
 @router.callback_query(Text(startswith='ar_forward_'))
 async def process_forward_press(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
     user_id = int(callback.data.split('_')[2])
-    if user_id == int(callback.from_user.id):
+    if user_id == user["id"]:
         btn_card = callback.data.split('_')[-1]
-        user = await user_db(callback.from_user.id)
         pg = int(user['page'])
         category = callback.data.split('_')[-3]
         cards = await card_user_arena(user['user_id'], category)
@@ -213,7 +211,7 @@ async def process_forward_press(callback: CallbackQuery):
                                                                                 f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                                                 f'_______________________________\n'
                                                                                 f'❗️Карты игрока {user["login"]}'),
-                                                                        reply_markup=create_pag_keyboard_arena(callback.from_user.id,
+                                                                        reply_markup=create_pag_keyboard_arena(user['id'],
                                                                                                                category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                                                'backward',
                                                                                                                 f'{pg + 1}/{len(cards)}',
@@ -228,7 +226,7 @@ async def process_forward_press(callback: CallbackQuery):
                                                          f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                          f'_______________________________\n'
                                                          f'❗️Карты игрока {user["login"]}'),
-                                                        reply_markup=create_pag_keyboard_arena(callback.from_user.id, category+f'_{cards[pg]["name"]}_{btn_card}',
+                                                        reply_markup=create_pag_keyboard_arena(user['id'], category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                                'backward',
                                                                                                    f'{pg + 1}/{len(cards)}',
                                                                                                    'forward'))
@@ -236,10 +234,11 @@ async def process_forward_press(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='ar_backward_'))
 async def process_forward_press(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+
     user_id = int(callback.data.split('_')[2])
-    if user_id == int(callback.from_user.id):
+    if user_id == user['id']:
         btn_card = callback.data.split('_')[-1]
-        user = await user_db(callback.from_user.id)
         pg = int(user['page'])
         category = callback.data.split('_')[-3]
         cards = await card_user_arena(user['user_id'], category)
@@ -257,7 +256,7 @@ async def process_forward_press(callback: CallbackQuery):
                                                                                 f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                                                 f'_______________________________\n'
                                                                                 f'❗️Карты игрока {user["login"]}'),
-                                                                        reply_markup=create_pag_keyboard_arena(callback.from_user.id, category+f'_{cards[pg]["name"]}_{btn_card}',
+                                                                        reply_markup=create_pag_keyboard_arena(user['id'], category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                                                 'backward',
                                                                                                                 f'{pg + 1}/{len(cards)}',
                                                                                                                 'forward'))
@@ -272,7 +271,7 @@ async def process_forward_press(callback: CallbackQuery):
                                                          f'{LEXICON_CARD["value"]} {cards[pg]["value"]} kms\n\n'
                                                          f'_______________________________\n'
                                                          f'❗️Карты игрока {user["login"]}'),
-                                                reply_markup=create_pag_keyboard_arena(callback.from_user.id, category+f'_{cards[pg]["name"]}_{btn_card}',
+                                                reply_markup=create_pag_keyboard_arena(user['id'], category+f'_{cards[pg]["name"]}_{btn_card}',
                                                                                         'backward',
                                                                                         f'{pg + 1}/{len(cards)}',
                                                                                         'forward'))
@@ -281,9 +280,9 @@ async def process_forward_press(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='back_Card_'))
 async def back_category_command(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
     user_id = int(callback.data.split('_')[2])
-    if user_id == callback.from_user.id:
-        user = await user_db(callback.from_user.id)
+    if user_id == user['id']:
         cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user['universe'])
         btn: str = callback.data.split('_')[-1]
         await bot.send_message(chat_id=callback.message.chat.id, text=f'❗️Карты игрока {user[2]}',
@@ -300,8 +299,9 @@ async def back_category_command(callback: CallbackQuery):
 @router.callback_query(Text(startswith='choice_'))
 async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
+
     user_id = int(callback.data.split('_')[1])
-    if user_id == user["id"]:
+    if user_id == user['id']:
         teams = await teams_db(callback.from_user.id, user['universe'])
         cards = [f'{teams["card_1_name"]}', f'{teams["card_2_name"]}', f'{teams["card_3_name"]}', f'{teams["card_4_name"]}']
         card = callback.data.split('_')[-2]
