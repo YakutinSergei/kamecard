@@ -347,6 +347,7 @@ async def back_arena_command(callback: CallbackQuery):
 @router.callback_query(Text(startswith=LEXICON_ARENA['search']))
 async def search_match(callback: CallbackQuery):
     if int(callback.data.split('_')[-1]) == callback.from_user.id:
+        print('nneeenenen')
         user = await user_db(callback.from_user.id)
         teams = await teams_db(callback.from_user.id, user['universe'])
         opponent_card = await opponent_card_db(callback.from_user.id, user['universe'])
