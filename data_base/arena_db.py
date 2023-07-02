@@ -204,7 +204,7 @@ async def all_users_statistics():
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
-        users = await conn.fetch(f"SELECT *FROM users ORDER BY points DESC LIMIT 10")
+        users = await conn.fetch(f"SELECT *FROM users ORDER BY points")
         print(users)
 
     except Exception as _ex:

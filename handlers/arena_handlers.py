@@ -40,7 +40,7 @@ async def arena(callback: CallbackQuery):
 async def statistics(callback: CallbackQuery):
     users = await all_users_statistics()
     list_arena = ""
-    for i in range(len(users)):
+    for i in range(10):
         list_arena +=f'{i+1}. {users[i]["login"]} - {users[i]["points"]}\n'
     await callback.message.answer(text='🏆Топ 10 игроков\n'
                                        '________________\n'
