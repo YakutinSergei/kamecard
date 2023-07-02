@@ -287,7 +287,7 @@ async def back_category_command(callback: CallbackQuery):
         cards_user = postreSQL_cards_all_user_category(callback.from_user.id, user['universe'])
         btn: str = callback.data.split('_')[-1]
         await bot.send_message(chat_id=callback.message.chat.id, text=f'❗️Карты игрока {user[2]}',
-                               reply_markup=create_inline_kb_arena(1, f'{callback.from_user.id}__{btn}__',
+                               reply_markup=create_inline_kb_arena(1, f'{user["id"]}__{btn}__',
                                                                    f"{LEXICON_CARD_RARE['usual']} {cards_user[0]}",
                                                                    f"{LEXICON_CARD_RARE['rare']} {cards_user[1]}",
                                                                    f"{LEXICON_CARD_RARE['epic']} {cards_user[2]}",
@@ -299,9 +299,9 @@ async def back_category_command(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='choice_'))
 async def choice_card(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
     user_id = int(callback.data.split('_')[1])
-    if user_id == callback.from_user.id:
-        user = await user_db(callback.from_user.id)
+    if user_id == user["id"]:
         teams = await teams_db(callback.from_user.id, user['universe'])
         cards = [f'{teams["card_1_name"]}', f'{teams["card_2_name"]}', f'{teams["card_3_name"]}', f'{teams["card_4_name"]}']
         card = callback.data.split('_')[-2]
