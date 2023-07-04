@@ -4,6 +4,8 @@ from aiogram.fsm.state import default_state
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto,  InputMediaAnimation
 from aiogram import Router
 from aiogram.filters import Command, Text
+
+from data_base.arena_db import all_users
 from lexicon.lexicon_ru import LEXICON_RU, LEXICON_CARD, LEXICON_CARD_RARE
 from create_bot import bot
 from data_base.postreSQL_bd import postreSQL_admin, postreSQL_card_add, postreSQL_cards, postreSQL_login, \
@@ -29,6 +31,8 @@ class FSMAdmin_universal(StatesGroup):
 class FSMAdmin_dust(StatesGroup):
     login = State()
     attempts = State()
+class FSMAdmin_mailing(StatesGroup):
+    text = State()
 
 @router.message(Text(text='Отмена'), StateFilter(default_state))
 async def process_cancel_command(message: Message):
@@ -40,7 +44,9 @@ async def process_cancel_command(message: Message):
                                                               LEXICON_CARD['add_card'],
                                                               LEXICON_CARD['universe'],
                                                               LEXICON_CARD['add_inuverse'],
-                                                              LEXICON_CARD['add_attempt']))
+                                                              LEXICON_CARD['add_attempt'],
+                                                              LEXICON_CARD['promo'],
+                                                              LEXICON_CARD['mailing']))
 
 
 @router.message(Text(text='Отмена'), ~StateFilter(default_state))
@@ -53,7 +59,9 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
                                                               LEXICON_CARD['add_card'],
                                                               LEXICON_CARD['universe'],
                                                               LEXICON_CARD['add_inuverse'],
-                                                              LEXICON_CARD['add_attempt']))
+                                                              LEXICON_CARD['add_attempt'],
+                                                              LEXICON_CARD['promo'],
+                                                              LEXICON_CARD['mailing']))
     # Сбрасываем состояние и очищаем данные, полученные внутри состояний
     await state.clear()
 
@@ -62,14 +70,15 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
 @router.message(Command(commands=['admin']))
 async def process_moderator_command(message: Message):
     if postreSQL_admin(message.from_user.id):
-        await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
         await bot.send_message(message.from_user.id, text='МЕНЮ АДМИНИСТРАТОРА', reply_markup=create_inline_kb(1,'',
                                                                                                                LEXICON_CARD['card'],
                                                                                                                LEXICON_CARD['add_card'],
                                                                                                                LEXICON_CARD['universe'],
                                                                                                                LEXICON_CARD['add_inuverse'],
                                                                                                                LEXICON_CARD['add_attempt'],
-                                                                                                               LEXICON_CARD['promo'],))
+                                                                                                               LEXICON_CARD['promo'],
+                                                                                                               LEXICON_CARD['mailing']
+                                                                                                               ))
     else:
         await bot.send_message(message.from_user.id, text='Вы не являетесь администратором')
 #region Дабавление карточки
@@ -141,7 +150,9 @@ async def process_rare_card(message: Message, state: FSMContext):
                                                                                            LEXICON_CARD['add_card'],
                                                                                            LEXICON_CARD['universe'],
                                                                                            LEXICON_CARD['add_inuverse'],
-                                                                                           LEXICON_CARD['add_attempt']))
+                                                                                           LEXICON_CARD['add_attempt'],
+                                                                                           LEXICON_CARD['promo'],
+                                                                                           LEXICON_CARD['mailing']))
     elif message.photo:
         await state.update_data(img='photo__' + message.photo[0].file_id)
         new_card = await state.get_data()
@@ -152,7 +163,9 @@ async def process_rare_card(message: Message, state: FSMContext):
                                                                                            LEXICON_CARD['add_card'],
                                                                                            LEXICON_CARD['universe'],
                                                                                            LEXICON_CARD['add_inuverse'],
-                                                                                           LEXICON_CARD['add_attempt']))
+                                                                                           LEXICON_CARD['add_attempt'],
+                                                                                           LEXICON_CARD['promo'],
+                                                                                           LEXICON_CARD['mailing']))
     else:
         await message.answer(text='Отправили что то не то')
 
@@ -183,8 +196,28 @@ async def cards_print_menu(callback: CallbackQuery):
                                                               LEXICON_CARD['add_card'],
                                                               LEXICON_CARD['universe'],
                                                               LEXICON_CARD['add_inuverse'],
-                                                              LEXICON_CARD['add_attempt']))
+                                                              LEXICON_CARD['add_attempt'],
+                                                              LEXICON_CARD['promo'],
+                                                              LEXICON_CARD['mailing']))
     await callback.answer()
+
+# Рассылка
+@router.callback_query(Text(text=LEXICON_CARD['mailing']))
+async def mailing_text(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(FSMAdmin_mailing.text)
+    await callback.message.answer(text='Введите текст рассылки')
+    await callback.answer()
+
+@router.message(StateFilter(FSMAdmin_mailing.text))
+async def mailing(message: Message, state: FSMContext):
+    users = await all_users()
+    for user in users:
+        try:
+            await bot.send_message(chat_id=user['user_id'], text=message.text)
+        except:
+            pass
+    await state.clear()
+
 
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
@@ -387,7 +420,9 @@ async def del_product_command(callback: CallbackQuery):
                                                               LEXICON_CARD['add_card'],
                                                               LEXICON_CARD['universe'],
                                                               LEXICON_CARD['add_inuverse'],
-                                                              LEXICON_CARD['add_attempt']))
+                                                              LEXICON_CARD['add_attempt'],
+                                                              LEXICON_CARD['promo'],
+                                                              LEXICON_CARD['mailing']))
 @router.callback_query(Text(startswith='universe_del_'))
 async def del_product_command(callback: CallbackQuery):
     universe = callback.data.split("_")[-1]
@@ -404,7 +439,9 @@ async def del_product_command(callback: CallbackQuery):
                                                                   LEXICON_CARD['add_card'],
                                                                   LEXICON_CARD['universe'],
                                                                   LEXICON_CARD['add_inuverse'],
-                                                                  LEXICON_CARD['add_attempt']))
+                                                                  LEXICON_CARD['add_attempt'],
+                                                                  LEXICON_CARD['promo'],
+                                                                  LEXICON_CARD['mailing']))
     else:
         await bot.edit_message_text(text=f'МЕНЮ АДМИНИСТРАТОРА',
                                     chat_id=callback.from_user.id, message_id=callback.message.message_id,
@@ -413,7 +450,9 @@ async def del_product_command(callback: CallbackQuery):
                                                                   LEXICON_CARD['add_card'],
                                                                   LEXICON_CARD['universe'],
                                                                   LEXICON_CARD['add_inuverse'],
-                                                                  LEXICON_CARD['add_attempt']))
+                                                                  LEXICON_CARD['add_attempt'],
+                                                                  LEXICON_CARD['promo'],
+                                                                  LEXICON_CARD['mailing']))
 
 #Ввод логина для добавления пыли
 @router.callback_query(Text(text=LEXICON_CARD['add_attempt']))
@@ -443,11 +482,20 @@ async def process_add_dust_sql(message: Message, state: FSMContext):
     postreSQL_attempts_up(add_dust)
     await message.answer(text='Попытки успешно добавлены')
     await bot.send_message(message.from_user.id, text='МЕНЮ АДМИНИСТРАТОРА', reply_markup=create_inline_kb(1, '',
-                                                                                                           LEXICON_CARD['card'],
-                                                                                                           LEXICON_CARD['add_card'],
-                                                                                                           LEXICON_CARD['universe'],
-                                                                                                           LEXICON_CARD['add_inuverse'],
-                                                                                                           LEXICON_CARD['add_attempt']))
+                                                                                                           LEXICON_CARD[
+                                                                                                               'card'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'add_card'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'universe'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'add_inuverse'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'add_attempt'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'promo'],
+                                                                                                           LEXICON_CARD[
+                                                                                                               'mailing']))
 
 #Некоректный ввод
 @router.message(StateFilter(FSMAdmin_dust.attempts))

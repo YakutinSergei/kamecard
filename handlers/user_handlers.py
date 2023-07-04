@@ -425,6 +425,7 @@ async def add_my_cards_user(message: Message):
                               f"🎖Топ вселенной: {top} место\n"
                               f"🐢Логин: {user[2]}", reply_markup=create_inline_kb(2, 'change_', '🏬МАГАЗИН','🏟Арена', 'Сменить вселенную'))
 
+
 @router.callback_query(Text(startswith='change_Сменить вселенную'))
 async def process_forward_press(callback: CallbackQuery):
     inuverse = postgreSQL_all_universe()
@@ -434,6 +435,18 @@ async def process_forward_press(callback: CallbackQuery):
     await callback.message.answer(text='<u>ВЫБЕРИТЕ ВСЕЛЕНУЮ🪐</u>',
                          reply_markup=create_inline_kb_universe_user(1, 'user_universe_', all_inuverse))
     await callback.answer()
+
+
+@router.message(Command(commands=['change_🏬МАГАЗИН']))
+async def add_my_cards_user(message: Message):
+    user = postreSQL_users(message.from_user.id)
+    dust = user[4]
+    await bot.send_message(chat_id=message.chat.id, text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
+                                f"{LEXICON_SHOP['1_attempt']}\n"
+                                f"{LEXICON_SHOP['20_attempt']}\n"
+                                f"{LEXICON_SHOP['100_attempt']}\n"                              
+                                f"<b>БАЛАНС: {dust} пыли🌸</b>",
+                         reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
 
 
 @router.message(Command(commands=['shop']))

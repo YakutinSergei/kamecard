@@ -197,6 +197,7 @@ async def dust_arena_up(user_id):
             print('[INFO] PostgresSQL closed')
 
 
+
 async def all_users_statistics(user_id):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
@@ -216,4 +217,21 @@ async def all_users_statistics(user_id):
         if conn:
             await conn.close()
             return users, i_users
+            print('[INFO] PostgresSQL closed')
+
+
+#Все пользователи для рассылки
+async def all_users():
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        users = await conn.fetch(f"SELECT user_id FROM users")
+
+    except Exception as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            await conn.close()
+            return users
             print('[INFO] PostgresSQL closed')
