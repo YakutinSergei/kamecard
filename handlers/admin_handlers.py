@@ -189,7 +189,6 @@ async def cards_print_menu(callback: CallbackQuery):
 @router.callback_query(Text(startswith='cards_'))
 async def cards_print_menu(callback: CallbackQuery):
     cards = postreSQL_cards_admin(callback.data.split('_')[-1])
-    print(cards)
     pg = int(postreSQL_pg_up(callback.from_user.id, -2))
     str_cards = cards[pg][3]
     if len(cards) > 0:
@@ -391,14 +390,12 @@ async def del_product_command(callback: CallbackQuery):
                                                               LEXICON_CARD['add_attempt']))
 @router.callback_query(Text(startswith='universe_del_'))
 async def del_product_command(callback: CallbackQuery):
-    print(callback.data)
     universe = callback.data.split("_")[-1]
     await bot.edit_message_text(text=f'Вы хотите удалить вселенную <i>{universe} </i>?', chat_id=callback.from_user.id, message_id=callback.message.message_id,
                                 reply_markup=create_inline_kb(1, f'del_universe_{universe}_', 'ОК', 'Отмена'))
 
 @router.callback_query(Text(startswith='del_universe_'))
 async def del_product_command(callback: CallbackQuery):
-    print(callback.data)
     if callback.data.split('_')[-1] == 'ОК':
         postreSQL_del_universe(callback.data.split('_')[2])
         await bot.edit_message_text(text=f'Вселенная <i>{callback.data.split("_")[2]} </i> удалена', chat_id=callback.from_user.id, message_id=callback.message.message_id,

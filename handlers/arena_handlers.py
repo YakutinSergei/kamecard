@@ -215,7 +215,6 @@ async def process_forward_press(callback: CallbackQuery):
         btn_card = callback.data.split('_')[-1]
         pg = int(user['page'])
         category = callback.data.split('_')[-2]
-        print(category)
         cards = await card_user_arena(user['user_id'], category)
         if len(cards) > (pg + 1):
             await page_up_db(callback.from_user.id, 1)
@@ -367,7 +366,6 @@ async def back_arena_command(callback: CallbackQuery):
 @router.callback_query(Text(startswith=LEXICON_ARENA['search']))
 async def search_match(callback: CallbackQuery):
     if int(callback.data.split('_')[-1]) == callback.from_user.id:
-        print('nneeenenen')
         user = await user_db(callback.from_user.id)
         teams = await teams_db(callback.from_user.id, user['universe'])
         opponent_card = await opponent_card_db(callback.from_user.id, user['universe'])

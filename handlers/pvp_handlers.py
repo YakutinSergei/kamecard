@@ -8,6 +8,7 @@ from aiogram.types import Message
 
 from data_base.arena_db import arena_name_bd, teams_db, opponent_card_name, opponent_card_db
 from data_base.postreSQL_bd import user_db
+from data_base.pvp_bd import comands_bd
 from keyboards.arena_kb import create_inline_kb_arena
 from keyboards.pvp_kb import create_inline_pvp_arena
 from keyboards.user_kb import create_inline_kb
@@ -20,7 +21,6 @@ async def pvp_challenge(message: Message):
         if message.reply_to_message.from_user.id !=message.from_user.id:
             user = await user_db(message.from_user.id)
             teams = await teams_db(message.reply_to_message.from_user.id, user['universe'])
-            print(teams['ful'])
             if teams['ful']:
                 oop_name = await arena_name_bd(message.from_user.id, message.reply_to_message.from_user.id)
                 await message.answer(text=f'🎪 <b>{oop_name[1]}</b>, игрок <b>{oop_name[0]}</b> бросает тебе вызов '
@@ -34,23 +34,35 @@ async def pvp_challenge(message: Message):
                                           f'К сожелению у тебя во вселенной <b><u>{user["universe"]}</u></b> не собрана команда\n'
                                           f'Собери команду или выбери ее с другой вселенной',
                                      reply_markup=create_inline_kb(1,
-                                                                   f'change_🏟Арена_',
-                                                                   '🔢 Собрать команду', '🪐Выбрать другую команду'))
+                                                                   f'com_{message.from_user.id}_{message.reply_to_message.from_user.id}_', '🪐Выбрать команду'))
 
 
 
 #Выбор другой команды
-@router.callback_query(Text(startswith='change_🏟Арена_🪐Выбрать другую команду'))
+@router.callback_query(Text(startswith='com_'))
 async def cards_universe(callback: CallbackQuery):
+    user = await user_db(callback.from_user.id)
+    if int(callback.data.split('_')[2]) == user['user_id']:
+        commands = await comands_bd(user['user_id'])
+        if commands:
+            command_name = []
+            for i in range(len(commands)):
+                command_name.append(commands[i]['universe'])
+            await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvp_{callback.from_user.id}_{callback.data.split("_")[1]}_'
+                                                                                                  , *command_name))
+
+
 
 
 @router.callback_query(Text(startswith='pvp_'))
 async def choice_card(callback: CallbackQuery):
-    if int(callback.data.split('_')[2]) == callback.from_user.id:
+    if int(callback.data.split('_')[1]) == callback.from_user.id:
         user = await user_db(callback.from_user.id)
-        opponent_card = await teams_db(callback.data.split('_')[1], user['universe'])
-        name_opp = await arena_name_bd(callback.from_user.id, callback.data.split('_')[1])
-        teams = await teams_db(callback.from_user.id, user['universe'])
+        oponnent = await user_db(callback.data.split('_')[2])
+        opponent_card = await teams_db(callback.data.split('_')[1], oponnent['universe'])
+        name_opp = await arena_name_bd(callback.from_user.id, callback.data.split('_')[2])
+
+        teams = await teams_db(callback.from_user.id, callback.data.split('_')[-1])
         full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
             'card_4_attack']
         full_health = teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
@@ -108,7 +120,6 @@ async def choice_card(callback: CallbackQuery):
 @router.callback_query(Text(startswith='pvparena_'))
 async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
-    print(callback.data)
 
     if int(callback.data.split('_')[3]) == user['id']:
 
@@ -116,7 +127,6 @@ async def choice_card(callback: CallbackQuery):
         name_opp = callback.data.split('_')[1]
 
         opponent_card = await opponent_card_name(name_opp, user['universe'])
-        print(opponent_card)
         # Количество атаки противника
         opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
                      opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']

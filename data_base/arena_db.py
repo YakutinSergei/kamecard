@@ -11,10 +11,7 @@ env.read_env()
 async def teams_db(user_id, universe: str):
     try:
         conn = await asyncpg.connect(user=env('user'),  password=env('password'), database=env('db_name'), host=env('host'))
-        print(user_id, 'Ид пользователя')
-        print(universe, 'влесенная пользователя')
         user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{universe}'")
-        print(user)
         if not user:
             await conn.execute('''INSERT INTO arena(user_id, universe, 
                                                     card_1_name, card_1_attack, card_1_protection,
@@ -110,7 +107,6 @@ async def choice_card_db(user_id, name_card, num_card):
     finally:
         if conn:
             await conn.close()
-
             print('[INFO] PostgresSQL closed')
 
 
@@ -120,7 +116,8 @@ async def opponent_card_db(user_id, universe):
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
 
-        opponent_card = await conn.fetch(f"SELECT * FROM arena WHERE user_id !='{user_id}' AND universe = '{universe}'")
+        opponent_card = await conn.fetch(f"SELECT * FROM arena WHERE user_id !='{user_id}' AND universe = '{universe}'"
+                                         f" AND ful = '1'")
     except Exception as _ex:
         print('[INFO] Error ', _ex)
 

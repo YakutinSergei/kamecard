@@ -113,11 +113,9 @@ async def add_add_card_user(message: Message):
 
 #Функция добавления карты
 async def add_card_user(name_card, message, universe):
-    # cards = postreSQL_cards(name_card, universe)
-    # print(cards)
+
     cards = await cards_aw(name_card, universe)
     ran_card = random.randint(0, len(cards)-1)
-    print(cards[ran_card]['name'])
     card_add = postgreSQL_add_card_user(message.from_user.id, cards[ran_card]['name'], cards[ran_card]['rare'], universe)
     if card_add:
         card_print = postgreSQL_cards_one(card_add[3])
