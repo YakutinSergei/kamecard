@@ -437,16 +437,17 @@ async def process_forward_press(callback: CallbackQuery):
     await callback.answer()
 
 
-@router.message(Command(commands=['change_🏬МАГАЗИН']))
-async def add_my_cards_user(message: Message):
-    user = postreSQL_users(message.from_user.id)
+@router.callback_query(Text(startswith='change_🏬МАГАЗИН'))
+async def add_my_cards_user(callback: CallbackQuery):
+    user = postreSQL_users(callback.from_user.id)
     dust = user[4]
-    await bot.send_message(chat_id=message.chat.id, text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
+    await bot.send_message(chat_id=callback.message.chat.id, text=f"<u>{LEXICON_SHOP['shop']}</u>\n"
                                 f"{LEXICON_SHOP['1_attempt']}\n"
                                 f"{LEXICON_SHOP['20_attempt']}\n"
                                 f"{LEXICON_SHOP['100_attempt']}\n"                              
                                 f"<b>БАЛАНС: {dust} пыли🌸</b>",
                          reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
+    await callback.answer()
 
 
 @router.message(Command(commands=['shop']))
@@ -508,9 +509,10 @@ async def process_forward_press(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StateFilter(FSMshop_dust.count))
 async def process_forward_press(callback: CallbackQuery, state: FSMContext):
-    user = postreSQL_users(callback.from_user.id)
-    dust = int(user[4])
+    user = await user_db(callback.from_user.id)
+    dust = int(user['sum_dust'])
     coutn_dust = int(callback.data.split('_')[-1])
+    print(coutn_dust)
     if coutn_dust == 1:
         if dust > 74:
             await callback.message.answer('Вы приобрели 1 попытку')
@@ -523,14 +525,13 @@ async def process_forward_press(callback: CallbackQuery, state: FSMContext):
                                                 f"{LEXICON_SHOP['20_attempt']}\n"
                                                 f"{LEXICON_SHOP['100_attempt']}\n"  
                                                 f"<b>БАЛАНС: {dust} пыли🌸</b>",
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                         reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
             await state.clear()
         else:
-            await bot.edit_message_text(text='У вас не хватает пыли\n'
-                                            'Выбирите количество пыли\n',
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                        reply_markup=create_inline_kb(3, 'dust_shop_', '1', '20', '100', 'Отмена'))
+            await bot.edit_message_text(text='❌У вас не хватает пыли❌\n',
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                        reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
     elif coutn_dust == 20:
         if dust > 1499:
             await callback.message.answer('Вы приобрели 20 попыток')
@@ -543,15 +544,14 @@ async def process_forward_press(callback: CallbackQuery, state: FSMContext):
                                             f"{LEXICON_SHOP['20_attempt']}\n"
                                             f"{LEXICON_SHOP['100_attempt']}\n"  
                                              f"<b>БАЛАНС: {dust} пыли🌸</b>",
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                         reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
             await state.clear()
             await callback.answer()
         else:
-            await bot.edit_message_text(text='У вас не хватает пыли\n'
-                                             'Выбирите количество пыли\n',
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                        reply_markup=create_inline_kb(3, 'dust_shop_', '1', '20', '100', 'Отмена'))
+            await bot.edit_message_text(text='❌У вас не хватает пыли❌\n',
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                        reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
             await callback.answer()
 
     else:
@@ -566,16 +566,15 @@ async def process_forward_press(callback: CallbackQuery, state: FSMContext):
                                             f"{LEXICON_SHOP['20_attempt']}\n"
                                             f"{LEXICON_SHOP['100_attempt']}\n"  
                                              f"<b>БАЛАНС: {dust} пыли🌸</b>",
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                         reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
             await state.clear()
             await callback.answer()
 
         else:
-            await bot.edit_message_text(text='У вас не хватает пыли\n'
-                                             'Выбирите количество пыли\n',
-                                        chat_id=callback.from_user.id, message_id=callback.message.message_id,
-                                        reply_markup=create_inline_kb(3, 'dust_shop_', '1', '20', '100', 'Отмена'))
+            await bot.edit_message_text(text='❌У вас не хватает пыли❌\n',
+                                        chat_id=callback.message.chat.id, message_id=callback.message.message_id,
+                                        reply_markup=create_inline_kb(1, 'shop_', 'Купить за пыль', 'Купить за деньги'))
     await callback.answer()
 
 
