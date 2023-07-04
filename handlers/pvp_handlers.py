@@ -50,6 +50,8 @@ async def cards_universe(callback: CallbackQuery):
                 command_name.append(commands[i]['universe'])
             await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvp_{callback.from_user.id}_{callback.data.split("_")[1]}_'
                                                                                                   , *command_name))
+        else:
+            await callback.message.edit_text(text='❌У тебя нет команд❌')
 
 
 
@@ -122,7 +124,6 @@ async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
 
     if int(callback.data.split('_')[3]) == user['id']:
-
 
         name_opp = callback.data.split('_')[1]
 
