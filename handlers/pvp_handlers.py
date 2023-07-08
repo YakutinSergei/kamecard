@@ -48,7 +48,7 @@ async def cards_universe(callback: CallbackQuery):
             command_name = []
             for i in range(len(commands)):
                 command_name.append(commands[i]['universe'])
-            await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvp_{callback.from_user.id}_{callback.data.split("_")[1]}_'
+            await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvpc_{callback.from_user.id}_{callback.data.split("_")[1]}_'
                                                                                                   , *command_name))
         else:
             await callback.message.edit_text(text='❌У тебя нет команд❌')
@@ -58,18 +58,22 @@ async def cards_universe(callback: CallbackQuery):
 
 @router.callback_query(Text(startswith='pvp_'))
 async def choice_card(callback: CallbackQuery):
-    if int(callback.data.split('_')[1]) == callback.from_user.id:
+    if int(callback.data.split('_')[2]) == callback.from_user.id:
         user = await user_db(callback.from_user.id)
         oponnent = await user_db(callback.data.split('_')[2])
-        opponent_card = await teams_db(callback.data.split('_')[1], oponnent['universe'])
-        name_opp = await arena_name_bd(callback.from_user.id, callback.data.split('_')[2])
+        if callback.data.split("_")[0][-1]== 'c':
+            opponent_card = await teams_db(callback.data.split('_')[1], callback.data.split("_")[-1])
+        else:
+            opponent_card = await teams_db(callback.data.split('_')[1], oponnent['universe'])
+        name_opp = await arena_name_bd(callback.from_user.id, callback.data.split('_')[1])
 
-        teams = await teams_db(callback.from_user.id, callback.data.split('_')[-1])
+        teams = await teams_db(callback.from_user.id, oponnent['universe'])
         full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
             'card_4_attack']
         full_health = teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
             'card_4_protection']
-
+        print(opponent_card)
+        print(teams)
         # Количество атаки противника
         opp_attack = opponent_card['card_1_attack'] + opponent_card['card_2_attack'] + \
                      opponent_card['card_3_attack'] + opponent_card['card_4_attack']
