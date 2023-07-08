@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery, InputMediaAnimation, InputMediaPhoto
 from create_bot import bot
 from data_base.arena_db import teams_db, card_user_arena, page_up_db, choice_card_db, opponent_card_db, \
     arena_attemps_up, arena_name_bd, opponent_card_name, dust_arena_up, all_users_statistics
-from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category, postreSQL_point_all_user
+from data_base.postreSQL_bd import user_db, postreSQL_cards_all_user_category
 from keyboards.arena_kb import arena_menu_kb, arena_teams_kb, create_pag_keyboard_arena, create_inline_kb_arena
 from keyboards.user_kb import create_inline_kb
 
@@ -104,7 +104,7 @@ async def choice_card(callback: CallbackQuery):
         full_health = (teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
             'card_4_protection']) - (opp_attack * (n-1))
         # Количество защиты противника
-        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] + \
+        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] +
                      opponent_card[0]['card_3_protection'] + opponent_card[0]['card_4_protection']) - (full_attack*(n-1))
 
 
@@ -215,7 +215,7 @@ async def process_forward_press(callback: CallbackQuery):
         btn_card = callback.data.split('_')[-1]
         pg = int(user['page'])
         category = callback.data.split('_')[-2]
-        cards = await card_user_arena(user['user_id'], category)
+        cards = await card_user_arena(user['user_id'], category, user['universe'])
         if len(cards) > (pg + 1):
             await page_up_db(callback.from_user.id, 1)
             pg += 1
@@ -258,7 +258,7 @@ async def process_forward_press(callback: CallbackQuery):
         btn_card = callback.data.split('_')[-1]
         pg = int(user['page'])
         category = callback.data.split('_')[-2]
-        cards = await card_user_arena(user['user_id'], category)
+        cards = await card_user_arena(user['user_id'], category, user['universe'])
         if pg > 0:
             await page_up_db(callback.from_user.id, -1)
 
@@ -321,7 +321,7 @@ async def choice_card(callback: CallbackQuery):
         teams = await teams_db(callback.from_user.id, user['universe'])
         pg = int(user['page'])
         category = callback.data.split('_')[-2]
-        card = await card_user_arena(user['user_id'], category)
+        card = await card_user_arena(user['user_id'], category, user['universe'])
         cards = [f'{teams["card_1_name"]}', f'{teams["card_2_name"]}', f'{teams["card_3_name"]}', f'{teams["card_4_name"]}']
         card = card[pg]['name']
         if card in cards:
@@ -375,7 +375,7 @@ async def search_match(callback: CallbackQuery):
         minutes = seconds / 60
         attampts = int(teams['attemps'])
         if int(hours) >= 1:
-            arena_attemps_up(callback.from_user.id, 1)
+            await arena_attemps_up(callback.from_user.id, 1)
             # postreSQL_attempts_user_up(message.from_user.id, 1)
             # postreSQL_data_user_up(message.from_user.id)
             attampts += 1
