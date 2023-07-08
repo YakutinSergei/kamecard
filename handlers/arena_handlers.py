@@ -172,7 +172,7 @@ async def choice_card(callback: CallbackQuery):
         user = await user_db(callback.from_user.id)
         pg = int(user['page'])
         category = callback.data.split('__')[-1].split(' ')[0]
-        cards = await card_user_arena(user['user_id'], category)
+        cards = await card_user_arena(user['user_id'], category, user['universe'])
         if len(cards) > 0:
             if cards[pg]['img'].split('__')[0] == 'gif':
                 await bot.send_animation(chat_id=callback.message.chat.id, animation=cards[pg]['img'][5:],

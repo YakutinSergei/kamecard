@@ -40,13 +40,14 @@ async def teams_db(user_id, universe: str):
 
 #Получение карт юзера которые могут учавствовать на арене
 
-async def card_user_arena(user_id, category):
+async def card_user_arena(user_id, category,universe):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
         card = await conn.fetch(f"SELECT cards.name, cards.img, cards.rare, cards.attack, cards.protection,"
                                 f"cards.value, cards.universe FROM cards JOIN user_cards "
-                                f"ON cards.name = name_card AND user_id='{user_id}' AND user_cards.rare = '{category}'")
+                                f"ON cards.name = name_card AND user_id='{user_id}' AND user_cards.rare = '{category}'"
+                                f"AND cards.universe = '{universe}'")
 
     except Exception as _ex:
         print('[INFO] Error ', _ex)
