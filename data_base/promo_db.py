@@ -49,7 +49,7 @@ async def promo_user(name, user_id):
                 attemps = await conn.fetchrow(f"SELECT number_attempts FROM promo WHERE promocode='{name}'")
                 user_attemps = await conn.fetchrow(f"SELECT attempts FROM users WHERE user_id='{user_id}'")
                 await conn.fetchrow(f"UPDATE users SET attempts = $1 WHERE user_id=$2",
-                                    str(attemps['number_attempts']+ int(user_attemps['attempts'])), str(user_id))
+                                    int(attemps['number_attempts'] + int(user_attemps['attempts'])), str(user_id))
 
                 add = True
             else:
