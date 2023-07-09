@@ -184,7 +184,7 @@ async def choice_card(callback: CallbackQuery):
                                                                                 f'_______________________________\n'
                                                                                 f'❗️Карты игрока {user["login"]}',
                                                                         reply_markup=create_pag_keyboard_arena(user["id"],
-                                                                                                               category+f'_{cards[pg]["name"]}_{btn_card}',
+                                                                                                               category+f'_{btn_card}',
                                                                                                                'backward',
                                                                                                                 f'{pg + 1}/{len(cards)}',
                                                                                            'forward'))
