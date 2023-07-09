@@ -162,14 +162,14 @@ async def arena_name_bd(user_id, user_opp):
             print('[INFO] PostgresSQL closed')
 
 
-# Имя соперника
+# Имя карточки
 async def opponent_card_name(name, universe):
     try:
         conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
                                      host=env('host'))
 
         user_id = await conn.fetchrow(f"SELECT user_id FROM users WHERE login ='{name}'")
-        opponent_card = await conn.fetch(f"SELECT * FROM arena WHERE user_id = '{user_id['user_id']}' AND universe = '{universe}'")
+        opponent_card = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id = '{user_id['user_id']}' AND universe = '{universe}'")
 
     except Exception as _ex:
         print('[INFO] Error ', _ex)

@@ -102,6 +102,23 @@ async def user_db(user_id):
             return user
             print('[INFO] PostgresSQL closed')
 
+async def user_opp(name):
+    try:
+        conn = await asyncpg.connect(user=env('user'), password=env('password'), database=env('db_name'),
+                                     host=env('host'))
+        user = await conn.fetchrow(f"SELECT * FROM users WHERE login = '{name}'")
+
+
+
+    except psycopg2.Error as _ex:
+        print('[INFO] Error ', _ex)
+
+    finally:
+        if conn:
+            conn.close()
+            return user
+            print('[INFO] PostgresSQL closed')
+
 
 def postreSQL_users(user_id):
     try:
