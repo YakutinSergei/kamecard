@@ -63,7 +63,7 @@ async def choice_card(callback: CallbackQuery):
         oponnent = await user_db(callback.data.split('_')[2])
         if callback.data.split("_")[1] == 'c':
             teams = await opponent_card_name(user['login'], callback.data.split("_")[-1])
-            universe = callback.data.split("_")[-1]
+            universe = callback.data.split("_")[-1] 
         else:
             teams = await opponent_card_name(user['login'], oponnent['universe'])
             universe = oponnent['universe']
