@@ -63,7 +63,7 @@ async def choice_card(callback: CallbackQuery):
         oponnent = await user_db(callback.data.split('_')[2])
         if callback.data.split("_")[1] == 'c':
             teams = await opponent_card_name(user['login'], callback.data.split("_")[-1])
-            universe = callback.data.split("_")[-1] 
+            universe = callback.data.split("_")[-1]
         else:
             teams = await opponent_card_name(user['login'], oponnent['universe'])
             universe = oponnent['universe']
@@ -95,24 +95,24 @@ async def choice_card(callback: CallbackQuery):
                                                                               '👊Атаковать'))  # Имя соперника_здоровье мое_здоровье соперника_атака соперника
         elif opp_health <= full_attack:
             await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
-                                               f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
+                                               f'{user["login"]} 👊🏻 {oponnent["login"]}\n\n'
                                                f'Раунд 1\n\n'
-                                               f'{name_opp[0]}\n'
+                                               f'{user["login"]}\n'
                                                f'➳ Наносит ⚔️{full_attack} урона\n\n'
-                                               f'{name_opp[1]}\n'
+                                               f'{oponnent["login"]}\n'
                                                f'➳ ❤️{opp_health} ➠ 💔0\n'
                                                f'✖️✖️✖️✖️✖️✖️\n'
                                                f'👏🏻Ты победил\n')
         else:
             await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
-                                               f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
+                                               f'{user["login"]} 👊🏻 {oponnent["login"]}\n\n'
                                                f'Раунд 1\n\n'
-                                               f'{name_opp[0]}\n'
+                                               f'{user["login"]}\n'
                                                f'➳ Наносит ⚔️{full_attack} урона\n\n'
-                                               f'{name_opp[1]}\n'
+                                               f'{oponnent["login"]}\n'
                                                f'➳ ❤️{opp_health} ➠ 💔{opp_health - full_attack}\n'
                                                f'✖️✖️✖️✖️✖️✖️\n'
-                                               f'{name_opp[1]}\n'
+                                               f'{oponnent["login"]}\n'
                                                f'➳ Наносит ⚔️{opp_attack} урона\n\n'
                                                f'➳ ❤️{full_health} ➠ 💔0\n'
                                                f'✖️✖️✖️✖️✖️✖️\n'
