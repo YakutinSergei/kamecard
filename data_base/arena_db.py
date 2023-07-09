@@ -187,7 +187,7 @@ async def dust_arena_up(user_id):
                                      host=env('host'))
         sum_dust = await conn.fetchrow(f"SELECT sum_dust FROM users WHERE user_id ='{user_id}'")
 
-        await conn.fetch(f"UPDATE users SET sum_dust = '{int(sum_dust['sum_dust']) + 5}'"
+        await conn.fetch(f"UPDATE users SET sum_dust = '{int(sum_dust['sum_dust']) + 15}'"
                          f"WHERE user_id = '{user_id}';")
     except Exception as _ex:
         print('[INFO] Error ', _ex)

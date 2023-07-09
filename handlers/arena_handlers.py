@@ -422,7 +422,7 @@ async def search_match(callback: CallbackQuery):
                                                    f'➳ ❤️{opp_health} ➠ 💔0\n'
                                                    f'✖️✖️✖️✖️✖️✖️\n'
                                                    f'👏🏻Ты победил\n'
-                                                   f'🎁Тебе начислено 5 пыли🌸')
+                                                   f'🎁Тебе начислено 15 пыли🌸')
                 await dust_arena_up(callback.from_user.id)
             else:
                 await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
