@@ -88,8 +88,8 @@ async def process_name_card(message: Message, state: FSMContext):
 # Если в чате ввел промокод
 @router.message(Text(text=['Ввести промокод', 'ввести промокод', 'ВВЕСТИ ПРОМОКОД']))
 async def promo_input(message: Message, state: FSMContext):
-    await state.set_state(FSMUser_promo.promocode)
     await bot.send_message(chat_id=message.chat.id, text='Введите промокод')
+    await state.set_state(FSMUser_promo.promocode)
 
 
 @router.message(StateFilter(FSMUser_promo.promocode))
@@ -103,7 +103,4 @@ async def input_user_promo(message: Message, state: FSMContext):
             await bot.send_message(chat_id=message.chat.id, text="❌Вы уже активировали этот промокод")
     else:
         await bot.send_message(chat_id=message.chat.id, text="❌Такого промокода нет")
-
-
-
     await state.clear()

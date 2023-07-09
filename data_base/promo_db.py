@@ -44,18 +44,22 @@ async def promo_user(name, user_id):
         add = False
 
         if promo:
-            if not await conn.fetchrow(f"SELECT * FROM promo_user WHERE promocode='{name}' AND user_id = {user_id}"):
-                await conn.execute('''INSERT INTO promo_user(promocode, user_id) VALUES($1, $2)''', name, user_id)
-                await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
-                attemps = await conn.fetchrow(f"SELECT number_attempts FROM promo WHERE promocode='{name}'")
-                user_attemps = await conn.fetchrow(f"SELECT attempts FROM users WHERE user_id='{user_id}'")
-                print(user_attemps)
-                await conn.fetchrow(f"UPDATE users SET attempts = $1 WHERE user_id=$2",
-                                    str(int(attemps['number_attempts'] + int(user_attemps['attempts']))), user_id)
+            if promo['validity'] != 0:
+                if not await conn.fetchrow(f"SELECT * FROM promo_user WHERE promocode='{name}' AND user_id = {user_id}"):
+                    await conn.execute('''INSERT INTO promo_user(promocode, user_id) VALUES($1, $2)''', name, user_id)
+                    await conn.fetchrow(f"UPDATE promo SET validity = validity - 1 WHERE promocode=$1", name)
+                    attemps = await conn.fetchrow(f"SELECT number_attempts FROM promo WHERE promocode='{name}'")
+                    user_attemps = await conn.fetchrow(f"SELECT attempts FROM users WHERE user_id='{user_id}'")
+                    print(user_attemps)
+                    await conn.fetchrow(f"UPDATE users SET attempts = $1 WHERE user_id=$2",
+                                        str(int(attemps['number_attempts'] + int(user_attemps['attempts']))), user_id)
 
-                add = True
+                    add = True
+                else:
+                    add = False
             else:
-                add = False
+                promo = None
+
 
 
 
