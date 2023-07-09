@@ -25,7 +25,7 @@ async def pvp_challenge(message: Message):
                 oop_name = await arena_name_bd(message.from_user.id, message.reply_to_message.from_user.id)
                 await message.answer(text=f'🎪 <b>{oop_name[1]}</b>, игрок <b>{oop_name[0]}</b> бросает тебе вызов '
                                       f'и предлогает устроить дружеский матч!⚔️',
-                                 reply_markup=create_inline_kb(1, f'pvp_{message.from_user.id}_{message.reply_to_message.from_user.id}_', '👊🏼Принять бой'))
+                                 reply_markup=create_inline_kb(1, f'pvp_a_{message.from_user.id}_{message.reply_to_message.from_user.id}_', '👊🏼Принять бой'))
             else:
                 oop_name = await arena_name_bd(message.from_user.id, message.reply_to_message.from_user.id)
                 await message.answer(text=f'🎪 <b>{oop_name[1]}</b>, игрок <b>{oop_name[0]}</b> бросает тебе вызов '
@@ -48,7 +48,7 @@ async def cards_universe(callback: CallbackQuery):
             command_name = []
             for i in range(len(commands)):
                 command_name.append(commands[i]['universe'])
-            await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvpc_{callback.data.split("_")[1]}_{callback.from_user.id}_'
+            await callback.message.edit_text(text='Выбери команду', reply_markup=create_inline_kb(1, f'pvp_c_{callback.data.split("_")[1]}_{callback.from_user.id}_'
                                                                                                   , *command_name))
         else:
             await callback.message.edit_text(text='❌У тебя нет команд❌')
@@ -56,29 +56,30 @@ async def cards_universe(callback: CallbackQuery):
 
 
 
-@router.callback_query(Text(startswith='pvp'))
+@router.callback_query(Text(startswith='pvp_'))
 async def choice_card(callback: CallbackQuery):
-    if int(callback.data.split('_')[2]) == callback.from_user.id:
-        print('nen')
-        user = await user_db(callback.data.split('_')[2])
-        oponnent = await user_db(callback.data.split('_')[2])
-        if callback.data.split("_")[0][-1] == 'c':
-            opponent_card = await teams_db(callback.data.split('_')[1], callback.data.split("_")[-1])
+    if int(callback.data.split('_')[3]) == callback.from_user.id:
+        user = await user_db(callback.data.split('_')[3])
+        oponnent = await user_db(callback.data.split('_')[3])
+        if callback.data.split("_")[1] == 'c':
+            opponent_card = await opponent_card_db(callback.data.split('_')[2], callback.data.split("_")[-1])
+            universe = callback.data.split("_")[-1]
         else:
-            opponent_card = await teams_db(callback.data.split('_')[1], oponnent['universe'])
-        name_opp = await arena_name_bd(callback.data.split('_')[2], callback.data.split('_')[1])
-
+            opponent_card = await opponent_card_db(callback.data.split('_')[2], oponnent['universe'])
+            universe = oponnent['universe']
+        name_opp = await arena_name_bd(callback.data.split('_')[3], callback.data.split('_')[2])
+        print(opponent_card)
         teams = await teams_db(callback.from_user.id, oponnent['universe'])
         full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
             'card_4_attack']
         full_health = teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
             'card_4_protection']
         # Количество атаки противника
-        opp_attack = opponent_card['card_1_attack'] + opponent_card['card_2_attack'] + \
-                     opponent_card['card_3_attack'] + opponent_card['card_4_attack']
+        opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
+                     opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']
         # Количество защиты противника
-        opp_health = opponent_card['card_1_protection'] + opponent_card['card_2_protection'] + \
-                     opponent_card['card_3_protection'] + opponent_card['card_4_protection']
+        opp_health = opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] + \
+                     opponent_card[0]['card_3_protection'] + opponent_card[0]['card_4_protection']
         if opp_health > full_attack and full_health > opp_attack:
             await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
                                                f'{name_opp[0]} 👊🏻 {name_opp[1]}\n\n'
@@ -92,7 +93,7 @@ async def choice_card(callback: CallbackQuery):
                                                f'➳ Наносит ⚔️{opp_attack} урона\n'
                                                f'{name_opp[0]}\n'
                                                f'➳ ❤️{full_health} ➠ 💔{full_health - opp_attack}\n',
-                                          reply_markup=create_inline_pvp_arena(1, f'{name_opp[1]}_2_{user["id"]}_',
+                                          reply_markup=create_inline_pvp_arena(1, f'{name_opp[0]}_2_{user["id"]}_{universe}_',
                                                                               '👊Атаковать'))  # Имя соперника_здоровье мое_здоровье соперника_атака соперника
         elif opp_health <= full_attack:
             await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
@@ -125,12 +126,12 @@ async def choice_card(callback: CallbackQuery):
 @router.callback_query(Text(startswith='pvparena_'))
 async def choice_card(callback: CallbackQuery):
     user = await user_db(callback.from_user.id)
-
     if int(callback.data.split('_')[3]) == user['id']:
 
         name_opp = callback.data.split('_')[1]
 
-        opponent_card = await opponent_card_name(name_opp, user['universe'])
+        print(callback.data.split('_')[4])
+        opponent_card = await opponent_card_name(name_opp, callback.data.split('_')[4])
         # Количество атаки противника
         opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
                      opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']
@@ -141,7 +142,7 @@ async def choice_card(callback: CallbackQuery):
         full_health = (teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
             'card_4_protection']) - (opp_attack * (n-1))
         # Количество защиты противника
-        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] + \
+        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] +
                      opponent_card[0]['card_3_protection'] + opponent_card[0]['card_4_protection']) - (full_attack*(n-1))
 
 
@@ -159,7 +160,7 @@ async def choice_card(callback: CallbackQuery):
                                                f'{user["login"]}\n'
                                                f'➳ ❤️{full_health} ➠ 💔{full_health - opp_attack}\n',
                                           reply_markup=create_inline_pvp_arena(1, f'{name_opp}_'
-                                                                                 f'{n+1}_{user["id"]}_',
+                                                                                 f'{n+1}_{user["id"]}_{callback.data.split("_")[4]}_',
                                                                               '👊Атаковать'))  # Имя соперника_здоровье мое_здоровье соперника_атака соперника
         elif opp_health <= full_attack:
             await callback.message.edit_text(text=f'👊🏻🏟 Сражение между игроками \n'

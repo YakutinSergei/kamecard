@@ -24,7 +24,7 @@ async def teams_db(user_id, universe: str):
                                                     'Пусто', 0,0,
                                                     'Пусто', 0,0,
                                                     'Пусто', 0,0,
-                                                    $3, 1, 0)''', user_id, universe, datetime.datetime.now())
+                                                    $3, 1, 0)''', int(user_id), universe, datetime.datetime.now())
             user = await conn.fetchrow(f"SELECT * FROM arena WHERE user_id='{user_id}' AND universe = '{universe}'")
         return user
 
