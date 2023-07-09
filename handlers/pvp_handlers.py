@@ -96,7 +96,7 @@ async def choice_card(callback: CallbackQuery):
                                                f'➳ Наносит ⚔️{opp_attack} урона\n'
                                                f'{name_opp[0]}\n'
                                                f'➳ ❤️{full_health} ➠ 💔{full_health - opp_attack}\n',
-                                          reply_markup=create_inline_pvp_arena(1, f'{name_opp[0]}_2_{user["id"]}_{universe}_',
+                                          reply_markup=create_inline_pvp_arena(1, f'{name_opp[1]}_2_{user["id"]}_{universe}_',
                                                                               '👊Атаковать'))  # Имя соперника_здоровье мое_здоровье соперника_атака соперника
         elif opp_health <= full_attack:
             await callback.message.answer(text=f'👊🏻🏟 Сражение между игроками \n'
@@ -186,6 +186,7 @@ async def choice_card(callback: CallbackQuery):
                                                f'✖️✖️✖️✖️✖️✖️\n\n'
                                                f'{name_opp}\n'
                                                f'➳ Наносит ⚔️{opp_attack} урона\n'
+                                                f'{user["login"]}\n'
                                                f'➳ ❤️{full_health} ➠ 💔0\n'
                                                f'✖️✖️✖️✖️✖️✖️\n'
                                                f'Ты проиграл\n')
