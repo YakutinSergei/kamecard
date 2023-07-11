@@ -54,7 +54,7 @@ async def db_connect():
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS promo_user(id BIGSERIAL NOT NULL PRIMARY KEY, 
                                                                 promocode VARCHAR(50) NOT NULL,
-                                                                user_id INTEGER NOT NULL);''')
+                                                                user_id BIGSERIAL NOT NULL);''')
 
 
         await conn.execute('''CREATE TABLE IF NOT EXISTS arena(id BIGSERIAL NOT NULL PRIMARY KEY, 

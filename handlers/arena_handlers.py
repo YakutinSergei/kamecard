@@ -95,8 +95,8 @@ async def choice_card(callback: CallbackQuery):
 
         opponent_card = await opponent_card_name(name_opp, user['universe'])
         # Количество атаки противника
-        opp_attack = opponent_card[0]['card_1_attack'] + opponent_card[0]['card_2_attack'] + \
-                     opponent_card[0]['card_3_attack'] + opponent_card[0]['card_4_attack']
+        opp_attack = opponent_card['card_1_attack'] + opponent_card['card_2_attack'] + \
+                     opponent_card['card_3_attack'] + opponent_card['card_4_attack']
         n = int(callback.data.split('_')[4])
         teams = await teams_db(callback.from_user.id, user['universe'])
         full_attack = teams['card_1_attack'] + teams['card_2_attack'] + teams['card_3_attack'] + teams[
@@ -104,8 +104,8 @@ async def choice_card(callback: CallbackQuery):
         full_health = (teams['card_1_protection'] + teams['card_2_protection'] + teams['card_3_protection'] + teams[
             'card_4_protection']) - (opp_attack * (n-1))
         # Количество защиты противника
-        opp_health = (opponent_card[0]['card_1_protection'] + opponent_card[0]['card_2_protection'] +
-                     opponent_card[0]['card_3_protection'] + opponent_card[0]['card_4_protection']) - (full_attack*(n-1))
+        opp_health = (opponent_card['card_1_protection'] + opponent_card['card_2_protection'] +
+                     opponent_card['card_3_protection'] + opponent_card['card_4_protection']) - (full_attack*(n-1))
 
 
         if opp_health > full_attack and full_health > opp_attack:
